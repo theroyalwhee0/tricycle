@@ -73,4 +73,4 @@ export async function mockCallFunc(func: AzureFunction): Promise<MockCallFuncRes
         request,
         response
     };
-};
+}
