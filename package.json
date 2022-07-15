@@ -1,10 +1,10 @@
 {
   "name": "@tricycle/tricycle",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "HTTP Framework for Azure Functions",
-  "main": "dist/tricycle.js",
   "author": "Adam Mill <hismajesty@theroyalwhee.com>",
   "license": "Apache-2.0",
+  "main": "dist/index.js",
   "peerDependencies": {
     "@azure/functions": ">= 3.2.0 < 4"
   },
