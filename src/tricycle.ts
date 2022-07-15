@@ -96,6 +96,7 @@ export class Tricycle<TContext extends Context = Context> {
                 NOT_FOUND = 'Not Found'
             }
 
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
             contentType = context.response.get(HeaderNames.ContentType) ?? None;
             status = context.response.status;
             body = context.response.body;

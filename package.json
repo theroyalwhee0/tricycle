@@ -1,8 +1,8 @@
 {
   "name": "@tricycle/tricycle",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "HTTP Framework for Azure Functions",
-  "main": "dist/index.js",
+  "main": "dist/tricycle.js",
   "author": "Adam Mill <hismajesty@theroyalwhee.com>",
   "license": "Apache-2.0",
   "peerDependencies": {
@@ -25,6 +25,7 @@
     "@theroyalwhee0/istype": "3.0.2"
   },
   "scripts": {
+    "build": "tsc && mkdir -p ./dist && cp -R ./build/src/* ./dist/",
     "lint": "eslint .",
     "link": "npm link",
     "unlink": "npm unlink",
