@@ -21,6 +21,14 @@ Features
 
 
 ## History
+- v0.0.4
+    - Middlware exports.
+    - Build improvements.
+    - Add metadata to package.json.
+- v0.0.3
+    - Build and export changes.
+- v0.0.2
+    - Build changes.
 - v0.0.1
     - Initial release.
 
