@@ -1,4 +1,4 @@
-# TricycleJS
+# @tricycle/tricycle : TricycleJS Azure Functions Framework
 
 ## Description
 TricycleJS is a library to simplify working with Azure Functions in Typescript. It is modeled after [KoaJS](https://koajs.com/) when possible.
@@ -15,12 +15,47 @@ Features
 `npm install @tricycle/tricycle`
 
 
+## Usage
+
+TricycleJS is used by creating an instance of Tricycle, extending it via middleware, and building endpoints from it.
+It is important to note that in TricycleJS every mutation of the Tricycle object clones and returns a new instance. 
+
+
+```js {}[app.js]
+import Tricycle from '@tricycle/tricycle';
+import dailyBird from './greetings.js';
+export const app = new Tricycle()
+    .middleware(greetings);
+```
+
+```js {}[greetings.js]
+export default function greetings() {
+    return function greetingsMiddleware(context) {
+        context.response.headers['x-greetings'] = 'hi';
+    }
+}
+```
+
+```js {}[endpoint.js]
+import app from './app.js';
+
+export const myEndpoint = app.endpoint((context) => {
+    context.response.body = {
+        hello: 'world'
+    };
+});
+```
+
 ## Links
 - GitHub: https://github.com/theroyalwhee0/tricycle
 - NPM: https://www.npmjs.com/package/@tricycle/tricycle
 
 
 ## History
+- v0.0.5
+    - Improve middleware ordering to match Koa.
+    - Add initial example code.
+    - Force clean build on dryrun.
 - v0.0.4
     - Middlware exports.
     - Build improvements.

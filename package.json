@@ -1,7 +1,7 @@
 {
   "name": "@tricycle/tricycle",
-  "version": "0.0.4",
-  "description": "TricycleJS - Azure Functions Framework",
+  "version": "0.0.5",
+  "description": "TricycleJS Azure Functions Framework",
   "author": "Adam Mill <hismajesty@theroyalwhee.com>",
   "license": "Apache-2.0",
   "keywords": [
@@ -29,11 +29,13 @@
   },
   "scripts": {
     "build": "tsc",
+    "rebuild": "npm run clean && tsc --build --force",
+    "clean": "mkdir -p ./dist && [ ! -z \"$(find ./dist/ -maxdepth 1 -type f -print -quit)\" ] && rm -R ./dist/*",
     "watch": "npm run build && tsc --watch",
     "lint": "eslint .",
     "test": "mocha --require ts-node/register test/**/*.test.ts",
     "test-watch": "mocha --reporter dot --watch --watch-files test/**/*.test.ts --watch-files src/**/*.ts --require ts-node/register test/**/*.test.ts",
-    "dryrun": "npm prune && npm audit && npm run lint && npm test && npm publish --dry-run",
+    "dryrun": "npm run rebuild && npm prune && npm audit && npm run lint && npm test && npm publish --dry-run",
     "audit": "npm audit --omit dev --omit optional",
     "publish": "./bin/_publish.sh"
   }

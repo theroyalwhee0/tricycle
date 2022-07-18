@@ -25,7 +25,7 @@ export class Tricycle<TContext extends Context = Context> {
         }
     }
 
-    middlware(mw: Middleware<TContext>) {
+    middleware(mw: Middleware<TContext>) {
         return this.clone((copy) => {
             copy.#middleware.push(mw);
         });
@@ -49,18 +49,6 @@ export class Tricycle<TContext extends Context = Context> {
     }
 
 
-    #applyMiddleware(context: TContext, next: Next): Promise<void>[] {
-        const middlware = [];
-        for (const mw of this.#middleware) {
-            const pm = mw(context, next);
-            if (pm instanceof Promise) {
-                // Sync middleware can be skipped.
-                middlware.push(pm)
-            }
-        }
-        return middlware;
-    }
-
     #nextFactory(): [Next, () => void] {
         let resolveNext;
         const nextPromise = new Promise<void>((resolve) => {
@@ -74,30 +62,47 @@ export class Tricycle<TContext extends Context = Context> {
         return [next, resolveNext];
     }
 
+    async #invokeMiddleware(context: TContext, ...mw: Middleware<TContext>[]): Promise<void> {
+        type Resolver = () => void;
+        const resolvers: Resolver[] = [];
+        const waiters: Promise<void>[] = [];
+        for (const middleware of mw) {
+            // Call middleware in order.
+            const [next, resolveNext] = this.#nextFactory();
+            const middlewarePromise = middleware(context, next)
+            // Middleware may be sync and not return a promise.
+            if (middlewarePromise) {
+                resolvers.push(resolveNext);
+                waiters.push(middlewarePromise);
+            }
+        }
+        for (let idx = waiters.length - 1; idx >= 0; idx--) {
+            // Resolve each middleware in reverse order.
+            const resolveNext = resolvers[idx];
+            const middlewarePromise = waiters[idx];
+            resolveNext();
+            await middlewarePromise;
+        }
+    }
+
     endpoint(fn: Middleware<TContext>): AzureFunction {
         const azureEndpoint = async (azureContext: Readonly<AzureContext>, azureRequest: Readonly<AzureHttpRequest>) => {
             const context = this.#createContext(azureContext, azureRequest);
-            const [next, resolveNext] = this.#nextFactory();
-            const middleware = this.#applyMiddleware(context, next);
-            const handlerPromise = fn(context, next);
-            resolveNext();
-            await handlerPromise;
-            await Promise.all(middleware);
+            await this.#invokeMiddleware(context, ...this.#middleware, fn)
             let status: HttpStatus | NoneType = None;
             let body: JsonValue | NoneType = None;
-            let contentType: string | NoneType = None;
+            // let contentType: string | NoneType = None;
             let headers: Headers | NoneType = None;
 
-            enum HeaderNames {
-                ContentType = 'content-type'
-            }
+            // enum HeaderNames {
+            //     ContentType = 'content-type'
+            // }
 
             enum HttpMessage {
                 NOT_FOUND = 'Not Found'
             }
 
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            contentType = context.response.get(HeaderNames.ContentType) ?? None;
+            // contentType = context.response.get(HeaderNames.ContentType) ?? None;
             status = context.response.status;
             body = context.response.body;
             headers = context.response.headers;
