@@ -7,6 +7,14 @@ import { Context } from '../src/context';
 import { Middleware } from '../src/middleware';
 import { mockCallFunc } from './mock/azurefunction';
 
+function delay(ms: number): Promise<void> {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve();
+        }, ms);
+    });
+}
+
 describe('Tricycle', () => {
     it('should be a class', () => {
         expect(Tricycle).to.be.a('function');
@@ -37,7 +45,6 @@ describe('Tricycle', () => {
         expect((<TestBody>results.response.body).ok).to.equal(true);
     });
     it('should build callable middlware', async () => {
-        const tricycle = new Tricycle();
         type TestBody = Record<string, boolean | number>;
         interface TestMiddlewareContext extends Context {
             index: number
@@ -55,8 +62,9 @@ describe('Tricycle', () => {
         });
         const middlewareSpy: SinonSpy = <SinonSpy>middleware;
         const endpointSpy: SinonSpy = <SinonSpy>endpoint;
+        const tricycle = new Tricycle<TestContext>();
         const func: AzureFunction = tricycle
-            .middlware(middleware)
+            .middleware(middleware)
             .endpoint(endpoint);
         expect(func).to.be.a('function');
         expect((middlewareSpy).callCount).to.equal(0);
@@ -67,5 +75,47 @@ describe('Tricycle', () => {
         expect(results.response.body).to.be.an('object');
         expect((<TestBody>results.response.body).ok).to.equal(true);
         expect((<TestBody>results.response.body).index).to.equal(1);
+    });
+    it('should call middlware and endpoint in correct order', async () => {
+        const ordering: string[] = [];
+        // Build a bunch of middleware.
+        const mw: Middleware[] = [];
+        for (let idx = 0; idx < 3; idx++) {
+            const middleware: Middleware = spy(async (_context: Context, next) => {
+                ordering.push(`mw${idx}a`);
+                await delay(Math.min(10 * idx, 100));
+                await next();
+                await delay(Math.max(100 - (10 * idx), 10));
+                ordering.push(`mw${idx}b`);
+            });
+            mw.push(middleware);
+        }
+        // Build the endpoint.
+        const endpoint: Middleware = spy(async (context: Context, next) => {
+            ordering.push(`ep0a`);
+            await next();
+            ordering.push(`ep0b`);
+            context.response.body = ['test'];
+        });
+        let tricycle = new Tricycle();
+        for (const middleware of mw) {
+            // Add the middleware.
+            tricycle = tricycle.middleware(middleware);
+        }
+        const func: AzureFunction = tricycle.endpoint(endpoint);
+        // Call the endpoint.
+        const results = await mockCallFunc(func);
+        // Verify everything was called.
+        expect((<SinonSpy>endpoint).callCount).to.equal(1);
+        for (const middleware of mw) {
+            expect((<SinonSpy>middleware).callCount).to.equal(1);
+        }
+        expect(ordering.join(' ')).to.eql([
+            'mw0a', 'mw1a', 'mw2a',
+            'ep0a', 'ep0b',
+            'mw2b', 'mw1b', 'mw0b',
+        ].join(' '));
+        // Make sure things work in general.
+        expect(results.response.body).to.be.eql(['test']);
     });
 });

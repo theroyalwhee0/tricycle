@@ -1,12 +1,15 @@
 {
   "name": "@tricycle/tricycle",
-  "version": "0.0.3",
-  "description": "HTTP Framework for Azure Functions",
+  "version": "0.0.6",
+  "description": "TricycleJS Azure Functions Framework",
   "author": "Adam Mill <hismajesty@theroyalwhee.com>",
   "license": "Apache-2.0",
+  "keywords": [
+    "azure-functions"
+  ],
   "main": "dist/index.js",
   "peerDependencies": {
-    "@azure/functions": ">= 3.2.0 < 4"
+    "@azure/functions": ">= 3.2.0 < 4.0.0"
   },
   "devDependencies": {
     "@types/chai": "4.3.1",
@@ -25,14 +28,15 @@
     "@theroyalwhee0/istype": "3.0.2"
   },
   "scripts": {
-    "build": "tsc && mkdir -p ./dist && cp -R ./build/src/* ./dist/",
+    "build": "tsc",
+    "rebuild": "npm run clean && tsc --build --force",
+    "clean": "mkdir -p ./dist && [ ! -z \"$(find ./dist/ -maxdepth 1 -type f -print -quit)\" ] && rm -R ./dist/*",
+    "watch": "npm run build && tsc --watch",
     "lint": "eslint .",
-    "link": "npm link",
-    "unlink": "npm unlink",
     "test": "mocha --require ts-node/register test/**/*.test.ts",
     "test-watch": "mocha --reporter dot --watch --watch-files test/**/*.test.ts --watch-files src/**/*.ts --require ts-node/register test/**/*.test.ts",
-    "dryrun": "npm prune && npm audit && npm run lint && npm test && npm publish --dry-run",
-    "audit-prod": "npm audit --omit dev --omit optional",
+    "dryrun": "npm run rebuild && npm prune && npm audit && npm run lint && npm test && npm publish --dry-run",
+    "audit": "npm audit --omit dev --omit optional",
     "publish": "./bin/_publish.sh"
   }
 }

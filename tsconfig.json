@@ -13,14 +13,13 @@
     "module": "CommonJS",
     "moduleResolution": "node",
     "declaration": true,
-    "outDir": "build/",
+    "outDir": "dist/",
     "lib": [
       "ES2020",
       "dom"
     ],
   },
   "include": [
-    "src/**/*.ts",
-    "test/**/*.ts"
+    "src/**/*.ts"
   ]
 }
