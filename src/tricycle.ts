@@ -135,13 +135,15 @@ export class Tricycle<TContext extends Context = Context> {
 /**
  * A context with more restricted types.
  */
-type RestrictContext<TContext extends Context, TBody extends ResponseBody> = Omit<TContext, 'body'> & {
-    body: TBody
-};
+type RestrictContext<TContext extends Context, TBody extends Context['body']> =
+    Omit<TContext, 'body'> & {
+        body: TBody
+    };
 
 /**
  * Remove the restructions on a restricted context.
  */
-type UnrestrictContext<TContext extends Context> = Omit<TContext, 'body'> & {
-    body: TContext['body']
-};
+type UnrestrictContext<TContext extends Context> =
+    Omit<TContext, 'body'> & {
+        body: TContext['body']
+    };
