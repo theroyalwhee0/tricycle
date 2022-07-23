@@ -23,7 +23,7 @@ It is important to note that in TricycleJS every mutation of the Tricycle object
 
 ```js {}[app.js]
 import Tricycle from '@tricycle/tricycle';
-import dailyBird from './greetings.js';
+import greetings from './greetings.js';
 export const app = new Tricycle()
     .middleware(greetings);
 ```
@@ -52,6 +52,10 @@ export const myEndpoint = app.endpoint((context) => {
 
 
 ## History
+- v0.0.7
+    - Add type restriction for endpoint middleware.
+    - Remove unneeded interfaces.
+    - Fix example code.
 - v0.0.5
     - Improve middleware ordering to match Koa.
     - Add initial example code.

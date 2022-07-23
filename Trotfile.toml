@@ -1,0 +1,3 @@
+[actions]
+link='npm link'
+unlink='npm unlink'

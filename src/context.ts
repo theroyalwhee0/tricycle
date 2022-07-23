@@ -1,28 +1,16 @@
-import { IResponse, Response } from './response';
-import { IRequest, Request } from './request';
-import { IPlatform, Platform } from './platform';
-import { JsonValue } from './utilities/json';
+import { Response, ResponseBody } from './response';
+import { Request } from './request';
+import { Platform } from './platform';
 import { HttpStatus } from './httpstatus';
 import { None } from './utilities/none';
 
-export interface IContext {
-    response: IResponse
-    request: IRequest
-    platform: IPlatform
-    // Request.
-    url: string
-    method: string
-    // Response.
-    body: JsonValue
-    status: HttpStatus
-}
 
-export class Context implements IContext {
+export class Context<TBody extends ResponseBody = ResponseBody> {
     // REF: https://koajs.com/#request
 
-    response: Response = new Response()
-    request: Request = new Request();
-    platform: Platform = new Platform()
+    response = new Response<TBody>();
+    request = new Request();
+    platform = new Platform();
 
     get url(): string {
         return this.request.url;
@@ -32,7 +20,7 @@ export class Context implements IContext {
         return this.request.method;
     }
 
-    get body(): JsonValue | undefined {
+    get body(): TBody | undefined {
         const value = this.response.body;
         if (value === None) {
             return undefined;
@@ -41,7 +29,7 @@ export class Context implements IContext {
         }
     }
 
-    set body(value: JsonValue) {
+    set body(value: TBody) {
         this.response.body = value;
     }
 
