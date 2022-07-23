@@ -118,4 +118,16 @@ describe('Tricycle', () => {
         // Make sure things work in general.
         expect(results.response.body).to.be.eql(['test']);
     });
+    it('should build allow type specialzation in endpoint', async () => {
+        const tricycle = new Tricycle();
+        type CatBody = { cats: number, color?: string };
+        const func: AzureFunction = tricycle.endpoint<CatBody>((ctx) => {
+            ctx.body = { cats: 1 };
+            // ctx.body.dogs = 1; // This should fail to compile.
+        });
+        expect(func).to.be.a('function');
+        const results = await mockCallFunc(func);
+        expect(results.response.body).to.be.an('object');
+        expect((<CatBody>results.response.body).cats).to.equal(1);
+    });
 });

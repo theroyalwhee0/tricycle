@@ -3,14 +3,18 @@ import { HttpStatus } from "./httpstatus"
 import { JsonValue } from "./utilities/json"
 import { None, NoneType } from "./utilities/none"
 
-export interface IResponse {
-    body: JsonValue | NoneType
-    status: HttpStatus | NoneType
-    headers: Headers
-}
+export type ResponseBody = JsonValue;
 
-export class Response implements IResponse {
-    body: JsonValue | NoneType = None
+// export interface IResponse<TBody extends ResponseBody = ResponseBody> {
+//     body: TBody | NoneType
+//     status: HttpStatus | NoneType
+//     headers: Headers
+// }
+
+//  implements IResponse<TBody> 
+
+export class Response<TBody extends ResponseBody = ResponseBody> {
+    body: TBody | NoneType = None
     status: HttpStatus | NoneType = None
     #headers: Headers = new CaseInsensitiveHeaders();
 

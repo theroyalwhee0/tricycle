@@ -1,9 +1,4 @@
-export interface IRequest {
-    method: string
-    url: string
-}
-
-export class Request implements IRequest {
+export class Request {
     method: string
     url: string
 }

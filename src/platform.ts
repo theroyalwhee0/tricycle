@@ -3,12 +3,12 @@ import {
     HttpRequest as AzureHttpRequest
 } from '@azure/functions';
 
-export interface IPlatform {
-    azureContext: AzureContext
-    azureRequest: AzureHttpRequest
-}
+// export interface IPlatform {
+//     azureContext: AzureContext
+//     azureRequest: AzureHttpRequest
+// }
 
-export class Platform implements IPlatform {
+export class Platform {
     azureContext: AzureContext
     azureRequest: AzureHttpRequest
 }

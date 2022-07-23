@@ -6,11 +6,12 @@ import {
 import { isInteger, isObject } from '@theroyalwhee0/istype';
 import { DetailedError } from './utilities/error';
 import { HttpStatus, HTTP_STATUS_MIN, HTTP_STATUS_MAX } from './httpstatus';
-import { JsonValue } from './utilities/json';
+import { JsonObject, JsonValue } from './utilities/json';
 import { None, NoneType } from './utilities/none';
 import { Headers } from './headers';
 import { Context } from './context';
 import { Middleware, Next } from './middleware';
+import { ResponseBody } from './response';
 
 type CloneFunction<TContext extends Context> = (tricycle: Tricycle<TContext>) => void;
 
@@ -85,10 +86,10 @@ export class Tricycle<TContext extends Context = Context> {
         }
     }
 
-    endpoint(fn: Middleware<TContext>): AzureFunction {
+    endpoint<TBody extends ResponseBody = JsonObject>(fn: Middleware<RestrictContext<TContext, TBody>>): AzureFunction {
         const azureEndpoint = async (azureContext: Readonly<AzureContext>, azureRequest: Readonly<AzureHttpRequest>) => {
             const context = this.#createContext(azureContext, azureRequest);
-            await this.#invokeMiddleware(context, ...this.#middleware, fn)
+            await this.#invokeMiddleware(context, ...this.#middleware, <Middleware<UnrestrictContext<TContext>>>fn);
             let status: HttpStatus | NoneType = None;
             let body: JsonValue | NoneType = None;
             // let contentType: string | NoneType = None;
@@ -130,3 +131,17 @@ export class Tricycle<TContext extends Context = Context> {
         return azureEndpoint;
     }
 }
+
+/**
+ * A context with more restricted types.
+ */
+type RestrictContext<TContext extends Context, TBody extends ResponseBody> = Omit<TContext, 'body'> & {
+    body: TBody
+};
+
+/**
+ * Remove the restructions on a restricted context.
+ */
+type UnrestrictContext<TContext extends Context> = Omit<TContext, 'body'> & {
+    body: TContext['body']
+};
