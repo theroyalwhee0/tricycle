@@ -18,8 +18,8 @@ export class MockAzureContext implements Context {
     done(_err?: string | Error, _result?: unknown): void {
         throw new Error('Method not implemented.');
     }
-    req?: HttpRequest;
-    res?: { [key: string]: unknown; };
+    req: HttpRequest;
+    res: { [key: string]: unknown; };
 
     constructor() {
         this.invocationId = 'test';
