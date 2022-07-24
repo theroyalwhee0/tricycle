@@ -1,8 +1,8 @@
 import { IResponse, Response, ResponseBody } from './response';
 import { Request } from './request';
 import { Platform } from './platform';
-import { HttpStatus } from './httpstatus';
-import { None } from './utilities/none';
+// import { HttpStatus } from './httpstatus';
+import { None, NoneType } from './utilities/none';
 
 
 export interface IContext<TBody extends ResponseBody = ResponseBody> extends IContextAliases {
@@ -15,7 +15,7 @@ export interface IContextAliases<TBody extends ResponseBody = ResponseBody> {
     url: string
     method: string
     body: TBody
-    status: HttpStatus
+    status: number
 }
 
 export class Context<TBody extends ResponseBody = ResponseBody> implements IContext {
@@ -46,7 +46,7 @@ export class Context<TBody extends ResponseBody = ResponseBody> implements ICont
         this.response.body = value;
     }
 
-    get status(): HttpStatus | undefined {
+    get status(): number | undefined {
         const value = this.response.status;
         if (value === None) {
             return undefined;
@@ -55,7 +55,41 @@ export class Context<TBody extends ResponseBody = ResponseBody> implements ICont
         }
     }
 
-    set status(value: HttpStatus) {
+    set status(value: number) {
         this.response.status = value;
     }
 }
+
+
+/**
+ * A context with more restricted types.
+ */
+//  TBody extends ResponseBody = JsonObject,
+
+export type RestrictContext<
+    TContext extends IContext,
+    TBody extends IContext['response']['body'],
+    TStatus extends IContext['response']['status'],
+    THeaders extends IContext['response']['headers'],
+    > =
+    Omit<TContext, 'body'> & {
+        // Response.
+        body: TBody,
+        status: number & TStatus,
+        response: Omit<TContext['response'], 'body' | 'status' | 'headers'> & {
+            body: TBody | NoneType,
+            status: number & TStatus,
+            headers: THeaders,
+        }
+    };
+
+/**
+ * Remove the restructions on a restricted context.
+ */
+export type UnrestrictContext<TContext extends Context> = TContext;
+    // Omit<TContext, 'body'> & {
+    //     body: TContext['body'],
+    //     response: Omit<TContext['response'], 'body'> & {
+    //         body: TContext['body'],
+    //     }
+    // };

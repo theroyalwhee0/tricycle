@@ -5,11 +5,11 @@ import {
 } from '@azure/functions';
 import { isInteger, isObject } from '@theroyalwhee0/istype';
 import { DetailedError } from './utilities/error';
-import { HttpStatus, HTTP_STATUS_MIN, HTTP_STATUS_MAX } from './httpstatus';
+import { HttpStatus, HTTP_STATUS_MIN, HTTP_STATUS_MAX } from './status';
 import { JsonObject, JsonValue } from './utilities/json';
 import { None, NoneType } from './utilities/none';
 import { Headers } from './headers';
-import { Context, IContext } from './context';
+import { Context, RestrictContext, UnrestrictContext } from './context';
 import { Middleware, Next } from './middleware';
 import { ResponseBody } from './response';
 
@@ -88,17 +88,19 @@ export class Tricycle<TContext extends Context = Context> {
 
     endpoint<
         TBody extends ResponseBody = JsonObject,
+        TStatus extends number = number,
+        THeaders extends Headers = Headers,
         >(
-            fn: Middleware<RestrictContext<TContext, TBody>>
+            fn: Middleware<RestrictContext<TContext, TBody, TStatus, THeaders>>
         ): AzureFunction {
         const azureEndpoint = async (azureContext: Readonly<AzureContext>, azureRequest: Readonly<AzureHttpRequest>) => {
             const context = this.#createContext(azureContext, azureRequest);
             await this.#invokeMiddleware(
                 context,
                 ...this.#middleware,
-                <Middleware<TContext>><unknown><Middleware<UnrestrictContext<TContext>>>fn
+                <Middleware<TContext>><unknown><Middleware<UnrestrictContext<TContext>>><unknown>fn
             );
-            let status: HttpStatus | NoneType = None;
+            let status: number | NoneType = None;
             let body: JsonValue | NoneType = None;
             // let contentType: string | NoneType = None;
             let headers: Headers | NoneType = None;
@@ -139,32 +141,3 @@ export class Tricycle<TContext extends Context = Context> {
         return azureEndpoint;
     }
 }
-
-/**
- * A context with more restricted types.
- */
-//  TBody extends ResponseBody = JsonObject,
-
-type RestrictContext<
-    TContext extends IContext,
-    TBody extends IContext['response']['body'],
-    // TStatus extends IContext['response']['status'],
-    // THeaders extends IContext['response']['headers'],
-    > =
-    Omit<TContext, 'body'> & {
-        body: TBody,
-        response: Omit<TContext['response'], 'body'> & {
-            body: TBody,
-        }
-    };
-
-/**
- * Remove the restructions on a restricted context.
- */
-type UnrestrictContext<TContext extends Context> =
-    Omit<TContext, 'body'> & {
-        body: TContext['body'],
-        response: Omit<TContext['response'], 'body'> & {
-            body: TContext['body'],
-        }
-    };

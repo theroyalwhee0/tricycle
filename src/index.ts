@@ -1,6 +1,6 @@
 export * from './headers';
 export * from './utilities/json';
-export * from './httpstatus';
+export * from './status';
 export * from './tricycle';
 export * from './context';
 export * from './middleware';

@@ -8,6 +8,7 @@ import { Context } from '../src/context';
 import { Middleware } from '../src/middleware';
 import { mockCallFunc } from './mock/azurefunction';
 import { JsonObject } from '../src/utilities/json';
+import { HttpStatus } from '../src/status';
 
 function delay(ms: number): Promise<void> {
     return new Promise((resolve) => {
@@ -135,17 +136,16 @@ describe('Tricycle', () => {
     it('should build allow body, status, and header type specialzation in endpoint', async () => {
         const tricycle = new Tricycle();
         type CatBody = { cats: number, color?: string };
-        // type CatStatus = 200;
-        // type CatHeaders = {
-        //     'x-im-a': 'cat'
-        // }
-        // y, CatStatus, CatHeaders
-        const func: AzureFunction = tricycle.endpoint<CatBody>((ctx) => {
-            ctx.response.status = 200;
+        type CatStatus = HttpStatus.OK | HttpStatus.NOT_FOUND;
+        type CatHeaders = {
+            'x-im-a': 'cat'
+        }
+        const func: AzureFunction = tricycle.endpoint<CatBody, CatStatus, CatHeaders>((ctx) => {
+            ctx.response.status = HttpStatus.OK;
             ctx.response.headers['x-im-a'] = 'cat';
             ctx.response.body = { cats: 1 };
             // ctx.body.dogs = 1; // This should fail to compile.
-            // ctx.response.status = 404; // This should fail to compile.
+            // ctx.response.status = 500; // This should fail to compile.
             // ctx.response.headers['x-im-a'] = 'dog'; // This should fail to compile.
         });
         expect(func).to.be.a('function');
