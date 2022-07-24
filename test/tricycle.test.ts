@@ -6,6 +6,7 @@ import { Tricycle } from '../src/tricycle';
 import { Context } from '../src/context';
 import { Middleware } from '../src/middleware';
 import { mockCallFunc } from './mock/azurefunction';
+import { JsonObject } from '../src/utilities/json';
 
 function delay(ms: number): Promise<void> {
     return new Promise((resolve) => {
@@ -118,7 +119,7 @@ describe('Tricycle', () => {
         // Make sure things work in general.
         expect(results.response.body).to.be.eql(['test']);
     });
-    it('should build allow type specialzation in endpoint', async () => {
+    it('should build allow body type specialzation in endpoint', async () => {
         const tricycle = new Tricycle();
         type CatBody = { cats: number, color?: string };
         const func: AzureFunction = tricycle.endpoint<CatBody>((ctx) => {
@@ -129,5 +130,27 @@ describe('Tricycle', () => {
         const results = await mockCallFunc(func);
         expect(results.response.body).to.be.an('object');
         expect((<CatBody>results.response.body).cats).to.equal(1);
+    });
+    it('should build allow body, status, and header type specialzation in endpoint', async () => {
+        const tricycle = new Tricycle();
+        type CatBody = { cats: number, color?: string };
+        type CatStatus = 200;
+        type CatHeaders = {
+            'x-im-a': 'cat'
+        }
+        const func: AzureFunction = tricycle.endpoint<CatBody, CatStatus, CatHeaders>((ctx) => {
+            ctx.response.status = 200;
+            ctx.response.headers['x-im-a'] = 'cat';
+            ctx.response.body = { cats: 1 };
+            // ctx.body.dogs = 1; // This should fail to compile.
+            ctx.response.status = 404; // This should fail to compile.
+            ctx.response.headers['x-im-a'] = 'dog';
+        });
+        expect(func).to.be.a('function');
+        const results = await mockCallFunc(func);
+        expect(results.response.body).to.be.an('object');
+        expect(results.response.status).to.equal(200);
+        expect((<JsonObject>results.response.body).cats).to.equal(1);
+        expect((<Headers>results.response.headers)['x-im-a']).to.equal('cat');
     });
 });

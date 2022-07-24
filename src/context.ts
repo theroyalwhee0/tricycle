@@ -1,11 +1,24 @@
-import { Response, ResponseBody } from './response';
+import { IResponse, Response, ResponseBody } from './response';
 import { Request } from './request';
 import { Platform } from './platform';
 import { HttpStatus } from './httpstatus';
 import { None } from './utilities/none';
 
 
-export class Context<TBody extends ResponseBody = ResponseBody> {
+export interface IContext<TBody extends ResponseBody = ResponseBody> extends IContextAliases {
+    response: IResponse<TBody>,
+    request: Request,
+    platform: Platform,
+}
+
+export interface IContextAliases<TBody extends ResponseBody = ResponseBody> {
+    url: string
+    method: string
+    body: TBody
+    status: HttpStatus
+}
+
+export class Context<TBody extends ResponseBody = ResponseBody> implements IContext {
     // REF: https://koajs.com/#request
 
     response = new Response<TBody>();

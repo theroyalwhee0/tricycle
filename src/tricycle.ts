@@ -9,7 +9,7 @@ import { HttpStatus, HTTP_STATUS_MIN, HTTP_STATUS_MAX } from './httpstatus';
 import { JsonObject, JsonValue } from './utilities/json';
 import { None, NoneType } from './utilities/none';
 import { Headers } from './headers';
-import { Context } from './context';
+import { Context, IContext } from './context';
 import { Middleware, Next } from './middleware';
 import { ResponseBody } from './response';
 
@@ -86,7 +86,13 @@ export class Tricycle<TContext extends Context = Context> {
         }
     }
 
-    endpoint<TBody extends ResponseBody = JsonObject>(fn: Middleware<RestrictContext<TContext, TBody>>): AzureFunction {
+    endpoint<
+        TBody extends ResponseBody = JsonObject,
+        TStatus extends HttpStatus = HttpStatus,
+        THeaders extends Headers = Headers,
+        >(
+            fn: Middleware<RestrictContext<TContext, TBody, TStatus, THeaders>>
+        ): AzureFunction {
         const azureEndpoint = async (azureContext: Readonly<AzureContext>, azureRequest: Readonly<AzureHttpRequest>) => {
             const context = this.#createContext(azureContext, azureRequest);
             await this.#invokeMiddleware(context, ...this.#middleware, <Middleware<UnrestrictContext<TContext>>>fn);
@@ -135,9 +141,22 @@ export class Tricycle<TContext extends Context = Context> {
 /**
  * A context with more restricted types.
  */
-type RestrictContext<TContext extends Context, TBody extends Context['body']> =
-    Omit<TContext, 'body'> & {
-        body: TBody
+//  TBody extends ResponseBody = JsonObject,
+
+type RestrictContext<
+    TContext extends IContext,
+    TBody extends IContext['response']['body'],
+    TStatus extends IContext['response']['status'],
+    THeaders extends IContext['response']['headers'],
+    > =
+    Omit<TContext, 'body' | 'status' | 'response'> & {
+        body: TBody,
+        status: TStatus,
+        response: Omit<TContext['response'], 'body' | 'status' | 'headers'> & {
+            body: TBody,
+            status: TStatus,
+            headers: THeaders,
+        }
     };
 
 /**
