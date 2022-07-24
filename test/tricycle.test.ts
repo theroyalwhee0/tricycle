@@ -3,6 +3,7 @@ import { expect } from 'chai';
 import { spy, SinonSpy } from 'sinon';
 import { AzureFunction } from '@azure/functions';
 import { Tricycle } from '../src/tricycle';
+import { Headers } from '../src/headers';
 import { Context } from '../src/context';
 import { Middleware } from '../src/middleware';
 import { mockCallFunc } from './mock/azurefunction';
@@ -134,17 +135,18 @@ describe('Tricycle', () => {
     it('should build allow body, status, and header type specialzation in endpoint', async () => {
         const tricycle = new Tricycle();
         type CatBody = { cats: number, color?: string };
-        type CatStatus = 200;
-        type CatHeaders = {
-            'x-im-a': 'cat'
-        }
-        const func: AzureFunction = tricycle.endpoint<CatBody, CatStatus, CatHeaders>((ctx) => {
+        // type CatStatus = 200;
+        // type CatHeaders = {
+        //     'x-im-a': 'cat'
+        // }
+        // y, CatStatus, CatHeaders
+        const func: AzureFunction = tricycle.endpoint<CatBody>((ctx) => {
             ctx.response.status = 200;
             ctx.response.headers['x-im-a'] = 'cat';
             ctx.response.body = { cats: 1 };
             // ctx.body.dogs = 1; // This should fail to compile.
-            ctx.response.status = 404; // This should fail to compile.
-            ctx.response.headers['x-im-a'] = 'dog';
+            // ctx.response.status = 404; // This should fail to compile.
+            // ctx.response.headers['x-im-a'] = 'dog'; // This should fail to compile.
         });
         expect(func).to.be.a('function');
         const results = await mockCallFunc(func);

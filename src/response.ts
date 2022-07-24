@@ -11,8 +11,6 @@ export interface IResponse<TBody extends ResponseBody = ResponseBody> {
     headers: Headers
 }
 
-//  implements IResponse<TBody> 
-
 export class Response<TBody extends ResponseBody = ResponseBody> implements IResponse {
     body: TBody | NoneType = None
     status: HttpStatus | NoneType = None

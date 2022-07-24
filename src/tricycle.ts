@@ -88,14 +88,16 @@ export class Tricycle<TContext extends Context = Context> {
 
     endpoint<
         TBody extends ResponseBody = JsonObject,
-        TStatus extends HttpStatus = HttpStatus,
-        THeaders extends Headers = Headers,
         >(
-            fn: Middleware<RestrictContext<TContext, TBody, TStatus, THeaders>>
+            fn: Middleware<RestrictContext<TContext, TBody>>
         ): AzureFunction {
         const azureEndpoint = async (azureContext: Readonly<AzureContext>, azureRequest: Readonly<AzureHttpRequest>) => {
             const context = this.#createContext(azureContext, azureRequest);
-            await this.#invokeMiddleware(context, ...this.#middleware, <Middleware<UnrestrictContext<TContext>>>fn);
+            await this.#invokeMiddleware(
+                context,
+                ...this.#middleware,
+                <Middleware<TContext>><unknown><Middleware<UnrestrictContext<TContext>>>fn
+            );
             let status: HttpStatus | NoneType = None;
             let body: JsonValue | NoneType = None;
             // let contentType: string | NoneType = None;
@@ -146,16 +148,13 @@ export class Tricycle<TContext extends Context = Context> {
 type RestrictContext<
     TContext extends IContext,
     TBody extends IContext['response']['body'],
-    TStatus extends IContext['response']['status'],
-    THeaders extends IContext['response']['headers'],
+    // TStatus extends IContext['response']['status'],
+    // THeaders extends IContext['response']['headers'],
     > =
-    Omit<TContext, 'body' | 'status' | 'response'> & {
+    Omit<TContext, 'body'> & {
         body: TBody,
-        status: TStatus,
-        response: Omit<TContext['response'], 'body' | 'status' | 'headers'> & {
+        response: Omit<TContext['response'], 'body'> & {
             body: TBody,
-            status: TStatus,
-            headers: THeaders,
         }
     };
 
@@ -164,5 +163,8 @@ type RestrictContext<
  */
 type UnrestrictContext<TContext extends Context> =
     Omit<TContext, 'body'> & {
-        body: TContext['body']
+        body: TContext['body'],
+        response: Omit<TContext['response'], 'body'> & {
+            body: TContext['body'],
+        }
     };
