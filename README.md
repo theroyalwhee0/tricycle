@@ -52,8 +52,12 @@ export const myEndpoint = app.endpoint((context) => {
 
 
 ## History
+- v0.0.8
+    - Add type specialization for http status and response headers for endpoints.
+    - Add Typescript example code.
+    - Code cleanup.
 - v0.0.7
-    - Add type restriction for endpoint middleware.
+    - Add type specialization for endpoint middleware.
     - Remove unneeded interfaces.
     - Fix example code.
 - v0.0.5

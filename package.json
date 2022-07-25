@@ -1,6 +1,6 @@
 {
   "name": "@tricycle/tricycle",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "TricycleJS Azure Functions Framework",
   "author": "Adam Mill <hismajesty@theroyalwhee.com>",
   "license": "Apache-2.0",
