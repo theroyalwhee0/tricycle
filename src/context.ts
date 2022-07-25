@@ -1,7 +1,6 @@
 import { IResponse, Response, ResponseBody } from './response';
 import { Request } from './request';
 import { Platform } from './platform';
-// import { HttpStatus } from './httpstatus';
 import { None, NoneType } from './utilities/none';
 
 
@@ -64,8 +63,6 @@ export class Context<TBody extends ResponseBody = ResponseBody> implements ICont
 /**
  * A context with more restricted types.
  */
-//  TBody extends ResponseBody = JsonObject,
-
 export type RestrictContext<
     TContext extends IContext,
     TBody extends IContext['response']['body'],
@@ -82,14 +79,3 @@ export type RestrictContext<
             headers: THeaders,
         }
     };
-
-/**
- * Remove the restructions on a restricted context.
- */
-export type UnrestrictContext<TContext extends Context> = TContext;
-    // Omit<TContext, 'body'> & {
-    //     body: TContext['body'],
-    //     response: Omit<TContext['response'], 'body'> & {
-    //         body: TContext['body'],
-    //     }
-    // };

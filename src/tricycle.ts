@@ -9,12 +9,12 @@ import { HttpStatus, HTTP_STATUS_MIN, HTTP_STATUS_MAX } from './status';
 import { JsonObject, JsonValue } from './utilities/json';
 import { None, NoneType } from './utilities/none';
 import { Headers } from './headers';
-import { Context, RestrictContext, UnrestrictContext } from './context';
+import { Context, RestrictContext } from './context';
 import { Middleware, Next } from './middleware';
 import { ResponseBody } from './response';
+import { HttpMessage } from './httpmsg';
 
 type CloneFunction<TContext extends Context> = (tricycle: Tricycle<TContext>) => void;
-
 
 export class Tricycle<TContext extends Context = Context> {
 
@@ -98,26 +98,15 @@ export class Tricycle<TContext extends Context = Context> {
             await this.#invokeMiddleware(
                 context,
                 ...this.#middleware,
-                <Middleware<TContext>><unknown><Middleware<UnrestrictContext<TContext>>><unknown>fn
+                <Middleware<TContext>><unknown>fn
             );
             let status: number | NoneType = None;
             let body: JsonValue | NoneType = None;
-            // let contentType: string | NoneType = None;
             let headers: Headers | NoneType = None;
 
-            // enum HeaderNames {
-            //     ContentType = 'content-type'
-            // }
-
-            enum HttpMessage {
-                NOT_FOUND = 'Not Found'
-            }
-
-            // contentType = context.response.get(HeaderNames.ContentType) ?? None;
             status = context.response.status;
             body = context.response.body;
             headers = context.response.headers;
-
 
             if (body === None && status === None) {
                 status = HttpStatus.NOT_FOUND

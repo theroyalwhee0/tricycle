@@ -4,6 +4,14 @@
  * Statuses are still valid outside of these.
  */
 
+// Information
+export const CONTINUE = 100 as const;
+export type CONTINUE = 100;
+export const SWITCHING_PROTOCOLS = 102 as const;
+export type SWITCHING_PROTOCOLS = 102;
+export const PROCESSING = 102 as const;
+export type PROCESSING = 102;
+
 // Success
 export const OK = 200 as const;
 export type OK = 200;
