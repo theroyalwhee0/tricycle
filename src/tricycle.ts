@@ -41,7 +41,7 @@ export class Tricycle<TContext extends Context = Context> {
     }
 
     #createContext(azureContext: Readonly<AzureContext>, azureRequest: Readonly<AzureHttpRequest>): TContext {
-        const context: TContext = new Context() as TContext;
+        const context: TContext = new Context(this) as TContext;
         context.request.url = azureRequest.url;
         context.request.method = <string>azureRequest.method;
         context.platform.azureContext = azureContext;

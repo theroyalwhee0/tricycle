@@ -2,6 +2,7 @@ import { IResponse, Response, ResponseBody } from './response';
 import { Request } from './request';
 import { Platform } from './platform';
 import { None, NoneType } from './utilities/none';
+import { Tricycle } from './tricycle';
 
 
 export interface IContext<TBody extends ResponseBody = ResponseBody> extends IContextAliases {
@@ -20,9 +21,15 @@ export interface IContextAliases<TBody extends ResponseBody = ResponseBody> {
 export class Context<TBody extends ResponseBody = ResponseBody> implements IContext {
     // REF: https://koajs.com/#request
 
+    app: Tricycle
+
     response = new Response<TBody>();
     request = new Request();
     platform = new Platform();
+
+    constructor(app: Tricycle) {
+        this.app = app;
+    }
 
     get url(): string {
         return this.request.url;
