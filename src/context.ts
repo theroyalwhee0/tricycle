@@ -1,5 +1,5 @@
 import { IResponse, Response, ResponseBody } from './response';
-import { Request } from './request';
+import { Request, RequestParams } from './request';
 import { Platform } from './platform';
 import { None, NoneType } from './utilities/none';
 
@@ -23,6 +23,10 @@ export class Context<TBody extends ResponseBody = ResponseBody> implements ICont
     response = new Response<TBody>();
     request = new Request();
     platform = new Platform();
+
+    get params(): RequestParams {
+        return this.request.params;
+    }
 
     get url(): string {
         return this.request.url;
@@ -69,11 +73,13 @@ export type RestrictContext<
     TStatus extends IContext['response']['status'],
     THeaders extends IContext['response']['headers'],
     > =
-    Omit<TContext, 'body'> & {
+    TContext & {
+        // Omit<TContext, 'body' | 'status'> & {
         // Response.
         body: TBody,
         status: number & TStatus,
-        response: Omit<TContext['response'], 'body' | 'status' | 'headers'> & {
+        // Omit<TContext['response'], 'body' | 'status' | 'headers'>
+        response: TContext['response'] & {
             body: TBody | NoneType,
             status: number & TStatus,
             headers: THeaders,

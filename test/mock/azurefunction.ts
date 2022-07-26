@@ -21,8 +21,13 @@ export class MockAzureContext implements Context {
     req: HttpRequest;
     res: { [key: string]: unknown; };
 
-    constructor() {
-        this.invocationId = 'test';
+    constructor(options?: MockAzureContextOptions) {
+        options = options ?? new MockAzureContextOptions();
+        this.invocationId = options.invocationId;
+        this.bindingData = {
+            invocationId: this.invocationId,
+            ...options.bindingData,
+        };
         this.bindingDefinitions = [];
         this.req = new MockAzureHttpRequest();
         this.res = {
@@ -60,8 +65,13 @@ export type MockCallFuncResults = {
     response: { [key: string]: unknown; }
 };
 
-export async function mockCallFunc(func: AzureFunction): Promise<MockCallFuncResults> {
-    const context = new MockAzureContext();
+export class MockAzureContextOptions {
+    invocationId?: string = 'test'
+    bindingData?: Partial<ContextBindingData> = {}
+}
+
+export async function mockCallFunc(func: AzureFunction, options?: MockAzureContextOptions): Promise<MockCallFuncResults> {
+    const context = new MockAzureContext(options);
     const request = context.req;
     const results = await func(context, request);
     if (results !== undefined) {
