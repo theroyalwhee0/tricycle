@@ -1,21 +1,19 @@
 import { Headers, CaseInsensitiveHeaders } from "./headers"
-import { HttpStatus } from "./httpstatus"
+// import { HttpStatus } from "./httpstatus"
 import { JsonValue } from "./utilities/json"
 import { None, NoneType } from "./utilities/none"
 
 export type ResponseBody = JsonValue;
 
-// export interface IResponse<TBody extends ResponseBody = ResponseBody> {
-//     body: TBody | NoneType
-//     status: HttpStatus | NoneType
-//     headers: Headers
-// }
+export interface IResponse<TBody extends ResponseBody = ResponseBody> {
+    body: TBody | NoneType
+    status: number | NoneType
+    headers: Headers
+}
 
-//  implements IResponse<TBody> 
-
-export class Response<TBody extends ResponseBody = ResponseBody> {
+export class Response<TBody extends ResponseBody = ResponseBody> implements IResponse {
     body: TBody | NoneType = None
-    status: HttpStatus | NoneType = None
+    status: number | NoneType = None
     #headers: Headers = new CaseInsensitiveHeaders();
 
     get headers(): Headers {

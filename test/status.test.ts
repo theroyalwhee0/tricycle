@@ -1,6 +1,6 @@
 import { describe, it } from 'mocha';
 import { expect } from 'chai';
-import { HttpStatus, isValidHttpStatus } from '../src/httpstatus';
+import { HttpStatus, isValidHttpStatus } from '../src/status';
 
 describe("HttpStatus", () => {
     it('should be an object', () => {
