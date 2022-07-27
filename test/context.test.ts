@@ -8,6 +8,11 @@ describe('Context', () => {
     it('should be a class', () => {
         expect(Context).to.be.a('function');
     });
+    it('should have params member', () => {
+        const app = mockTricycle();
+        const ctx = new Context(app);
+        expect(ctx.params).to.eql({});
+    });
     it('should be instanceable', () => {
         const app = mockTricycle();
         const ctx = new Context(app);

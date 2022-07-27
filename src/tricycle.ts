@@ -3,7 +3,7 @@ import {
     Context as AzureContext,
     HttpRequest as AzureHttpRequest
 } from '@azure/functions';
-import { isInteger, isObject } from '@theroyalwhee0/istype';
+import { isInteger, isObject, isString } from '@theroyalwhee0/istype';
 import { DetailedError } from './utilities/error';
 import { HttpStatus, HTTP_STATUS_MIN, HTTP_STATUS_MAX } from './status';
 import { JsonObject, JsonValue } from './utilities/json';
@@ -13,6 +13,7 @@ import { Context, RestrictContext } from './context';
 import { Middleware, Next } from './middleware';
 import { ResponseBody } from './response';
 import { HttpMessage } from './httpmsg';
+import { RequestParams } from './request';
 
 type CloneFunction<TContext extends Context> = (tricycle: Tricycle<TContext>) => void;
 
@@ -43,6 +44,7 @@ export class Tricycle<TContext extends Context = Context> {
     #createContext(azureContext: Readonly<AzureContext>, azureRequest: Readonly<AzureHttpRequest>): TContext {
         const context: TContext = new Context(this) as TContext;
         context.request.url = azureRequest.url;
+        context.request.params = { ...azureContext.req.params };
         context.request.method = <string>azureRequest.method;
         context.platform.azureContext = azureContext;
         context.platform.azureRequest = azureRequest;

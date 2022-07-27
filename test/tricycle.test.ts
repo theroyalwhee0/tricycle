@@ -133,7 +133,7 @@ describe('Tricycle', () => {
         expect(results.response.body).to.be.an('object');
         expect((<CatBody>results.response.body).cats).to.equal(1);
     });
-    it('should build allow body, status, and header type specialzation in endpoint', async () => {
+    it('should allow body, status, and header type specialzation in endpoint', async () => {
         const tricycle = new Tricycle();
         type CatBody = { cats: number, color?: string };
         type CatStatus = HttpStatus.OK | HttpStatus.NOT_FOUND;
@@ -154,5 +154,26 @@ describe('Tricycle', () => {
         expect(results.response.status).to.equal(200);
         expect((<JsonObject>results.response.body).cats).to.equal(1);
         expect((<Headers>results.response.headers)['x-im-a']).to.equal('cat');
+    });
+    it('should populate ctx.params', async () => {
+        const endpoint: Middleware = spy((ctx) => {
+            expect(ctx.params).to.be.an('object');
+            expect(ctx.request.params).to.be.an('object');
+            expect(ctx.request.params).to.equal(ctx.params);
+            expect(ctx.params).to.eql({
+                bird: 'sparrow'
+            })
+        });
+        const func: AzureFunction = new Tricycle()
+            .endpoint(endpoint);
+        expect(func).to.be.a('function');
+        await mockCallFunc(func, {
+            req: {
+                params: {
+                    bird: 'sparrow'
+                }
+            }
+        });
+        expect((<SinonSpy>endpoint).callCount).to.equal(1);
     });
 });

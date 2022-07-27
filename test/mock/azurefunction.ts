@@ -21,36 +21,52 @@ export class MockAzureContext implements Context {
     req: HttpRequest;
     res: { [key: string]: unknown; };
 
-    constructor() {
-        this.invocationId = 'test';
+    constructor(options: MockAzureContextOptions = {}) {
+        if (options.invocationId) {
+            this.invocationId = options.invocationId;
+        }
+        this.bindingData = {
+            invocationId: this.invocationId,
+            ...options.bindingData,
+        };
         this.bindingDefinitions = [];
-        this.req = new MockAzureHttpRequest();
+        this.req = new MockAzureHttpRequest(options.req);
         this.res = {
             headers: {},
             body: undefined,
         };
     }
 }
+export type MockAzureHttpRequestOptions = {
+    params?: Record<string, string>
+    query?: Record<string, string>
+    headers?: Record<string, string>
+}
 
 export class MockAzureHttpRequest implements HttpRequest {
-    method: HttpMethod;
-    url: string;
-    headers: HttpRequestHeaders;
-    query: HttpRequestQuery;
-    params: HttpRequestParams;
-    user: HttpRequestUser;
+    url = '/birdseed'
+    method: HttpMethod = 'GET'
+    headers: HttpRequestHeaders = {}
+    query: HttpRequestQuery = {}
+    params: HttpRequestParams = {}
+    user: HttpRequestUser
     body?: unknown;
     rawBody?: unknown;
+
     parseFormBody(): Form {
         throw new Error('Method not implemented.');
     }
 
-    constructor() {
-        this.method = 'GET';
-        this.url = '/birdseed';
-        this.headers = {};
-        this.query = {};
-        this.params = {};
+    constructor(options: MockAzureHttpRequestOptions = {}) {
+        if (options.headers) {
+            this.headers = { ...options.headers };
+        }
+        if (options.query) {
+            this.query = { ...options.query };
+        }
+        if (options.params) {
+            this.params = { ...options.params };
+        }
     }
 }
 
@@ -60,10 +76,16 @@ export type MockCallFuncResults = {
     response: { [key: string]: unknown; }
 };
 
-export async function mockCallFunc(func: AzureFunction): Promise<MockCallFuncResults> {
+export type MockAzureContextOptions = {
+    invocationId?: string
+    bindingData?: Partial<ContextBindingData>
+    req?: MockAzureHttpRequestOptions
+}
+
+export async function mockCallFunc(func: AzureFunction, options: MockAzureContextOptions = {}): Promise<MockCallFuncResults> {
     // NOTE: This is calling the Azure Function, this context is the Azure Context,
     // and the request is the Azure Request.
-    const context = new MockAzureContext();
+    const context = new MockAzureContext(options);
     const request = context.req;
     const results = await func(context, request);
     if (results !== undefined) {
