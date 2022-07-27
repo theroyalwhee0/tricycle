@@ -41,21 +41,10 @@ export class Tricycle<TContext extends Context = Context> {
         return copy;
     }
 
-    #pluckParams(azureContext: Readonly<AzureContext>): RequestParams {
-        const ignoreParams = new Set(['invocationId']);
-        const params: RequestParams = {}
-        for (const [key, value] of Object.entries(azureContext.bindingData)) {
-            if (isString(value) && (!ignoreParams.has(key))) {
-                params[key] = value;
-            }
-        }
-        return params;
-    }
-
     #createContext(azureContext: Readonly<AzureContext>, azureRequest: Readonly<AzureHttpRequest>): TContext {
         const context: TContext = new Context() as TContext;
         context.request.url = azureRequest.url;
-        context.request.params = this.#pluckParams(azureContext);
+        context.request.params = { ...azureContext.req.params };
         context.request.method = <string>azureRequest.method;
         context.platform.azureContext = azureContext;
         context.platform.azureRequest = azureRequest;

@@ -168,8 +168,10 @@ describe('Tricycle', () => {
             .endpoint(endpoint);
         expect(func).to.be.a('function');
         await mockCallFunc(func, {
-            bindingData: {
-                bird: 'sparrow'
+            req: {
+                params: {
+                    bird: 'sparrow'
+                }
             }
         });
         expect((<SinonSpy>endpoint).callCount).to.equal(1);
