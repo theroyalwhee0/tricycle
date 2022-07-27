@@ -3,10 +3,13 @@ import {
     ContextBindingData, ContextBindings, ExecutionContext,
     Logger, TraceContext, Form,
     HttpMethod, HttpRequestHeaders, HttpRequestParams,
-    HttpRequestQuery, HttpRequestUser, AzureFunction
+    HttpRequestQuery, HttpRequestUser, AzureFunction, HttpResponse, HttpResponseSimple, HttpResponseHeaders, Cookie
 } from '@azure/functions';
+import { isArray, isObject } from '@theroyalwhee0/istype';
+import { Mock } from './mock';
 
 export class MockAzureContext implements Context {
+    [Mock] = true;
     invocationId: string;
     executionContext: ExecutionContext;
     bindings: ContextBindings;
@@ -19,7 +22,7 @@ export class MockAzureContext implements Context {
         throw new Error('Method not implemented.');
     }
     req: HttpRequest;
-    res: { [key: string]: unknown; };
+    res: HttpResponse;
 
     constructor(options: MockAzureContextOptions = {}) {
         if (options.invocationId) {
@@ -31,19 +34,28 @@ export class MockAzureContext implements Context {
         };
         this.bindingDefinitions = [];
         this.req = new MockAzureHttpRequest(options.req);
-        this.res = {
-            headers: {},
-            body: undefined,
-        };
+        this.res = new MockAzureHttpResponse();
     }
 }
 export type MockAzureHttpRequestOptions = {
     params?: Record<string, string>
     query?: Record<string, string>
     headers?: Record<string, string>
+    body?: unknown
+    rawBody?: string
+}
+
+export class MockAzureHttpResponse implements HttpResponseSimple {
+    [Mock]: true;
+    headers?: HttpResponseHeaders = {};
+    cookies?: Cookie[] = [];
+    body?: unknown;
+    statusCode?: number | string = 200;
+    enableContentNegotiation?: boolean = false;
 }
 
 export class MockAzureHttpRequest implements HttpRequest {
+    [Mock] = true;
     url = '/birdseed'
     method: HttpMethod = 'GET'
     headers: HttpRequestHeaders = {}
@@ -67,13 +79,28 @@ export class MockAzureHttpRequest implements HttpRequest {
         if (options.params) {
             this.params = { ...options.params };
         }
+        if (options.rawBody !== undefined) {
+            this.rawBody = options.rawBody;
+        }
+        if (options.body !== undefined) {
+            if (isObject(options.body)) {
+                this.body = { ...options.body };
+            } else if (isArray(options.body)) {
+                this.body = [...options.body];
+            } else {
+                this.body = options.body;
+            }
+            if (this.rawBody === undefined) {
+                this.rawBody = JSON.stringify(this.body);
+            }
+        }
     }
 }
 
 export type MockCallFuncResults = {
     context: Context,
     request: HttpRequest
-    response: { [key: string]: unknown; }
+    response: HttpResponse
 };
 
 export type MockAzureContextOptions = {

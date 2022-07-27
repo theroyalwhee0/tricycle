@@ -32,14 +32,13 @@ describe('Tricycle', () => {
         expect(clone).to.be.instanceOf(Tricycle);
     });
     it('should build callable endpoint', async () => {
-        const tricycle = new Tricycle();
         type TestBody = Record<string, boolean>;
         const endpoint: Middleware<Context> = spy((context: Context) => {
             expect(context).to.be.an('object');
             context.body = <TestBody>{ ok: true };
         });
         const endpointSpy: SinonSpy = <SinonSpy>endpoint;
-        const func: AzureFunction = tricycle.endpoint(endpoint);
+        const func: AzureFunction = new Tricycle().endpoint(endpoint);
         expect(func).to.be.a('function');
         expect((endpointSpy).callCount).to.equal(0);
         const results = await mockCallFunc(func);
@@ -121,26 +120,13 @@ describe('Tricycle', () => {
         // Make sure things work in general.
         expect(results.response.body).to.be.eql(['test']);
     });
-    it('should build allow body type specialzation in endpoint', async () => {
-        const tricycle = new Tricycle();
-        type CatBody = { cats: number, color?: string };
-        const func: AzureFunction = tricycle.endpoint<CatBody>((ctx) => {
-            ctx.body = { cats: 1 };
-            // ctx.body.dogs = 1; // This should fail to compile.
-        });
-        expect(func).to.be.a('function');
-        const results = await mockCallFunc(func);
-        expect(results.response.body).to.be.an('object');
-        expect((<CatBody>results.response.body).cats).to.equal(1);
-    });
     it('should allow body, status, and header type specialzation in endpoint', async () => {
-        const tricycle = new Tricycle();
         type CatBody = { cats: number, color?: string };
         type CatStatus = HttpStatus.OK | HttpStatus.NOT_FOUND;
         type CatHeaders = {
             'x-im-a': 'cat'
         }
-        const func: AzureFunction = tricycle.endpoint<CatBody, CatStatus, CatHeaders>((ctx) => {
+        const func: AzureFunction = new Tricycle().endpoint<CatBody, CatStatus, CatHeaders>((ctx) => {
             ctx.response.status = HttpStatus.OK;
             ctx.response.headers['x-im-a'] = 'cat';
             ctx.response.body = { cats: 1 };
@@ -155,7 +141,7 @@ describe('Tricycle', () => {
         expect((<JsonObject>results.response.body).cats).to.equal(1);
         expect((<Headers>results.response.headers)['x-im-a']).to.equal('cat');
     });
-    it('should populate ctx.params', async () => {
+    it('should have request params', async () => {
         const endpoint: Middleware = spy((ctx) => {
             expect(ctx.params).to.be.an('object');
             expect(ctx.request.params).to.be.an('object');
@@ -175,5 +161,21 @@ describe('Tricycle', () => {
             }
         });
         expect((<SinonSpy>endpoint).callCount).to.equal(1);
+    });
+    it('should have request raw body', async () => {
+        const func: AzureFunction = new Tricycle()
+            .endpoint((ctx) => {
+                expect(ctx.request.rawBody).to.equal('{"moss":"hanging"}');
+                expect(ctx.request.body).to.eql({ "moss": "hanging" });
+                ctx.response.status = HttpStatus.OK;
+            });
+        const results = await mockCallFunc(func, {
+            req: {
+                body: {
+                    "moss": "hanging"
+                }
+            }
+        });
+        expect(results.response.status).to.equal(200);
     });
 });
