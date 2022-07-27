@@ -5,6 +5,7 @@ import {
     HttpMethod, HttpRequestHeaders, HttpRequestParams,
     HttpRequestQuery, HttpRequestUser, AzureFunction, HttpResponse, HttpResponseSimple, HttpResponseHeaders, Cookie
 } from '@azure/functions';
+import { isArray, isObject } from '@theroyalwhee0/istype';
 import { Mock } from './mock';
 
 export class MockAzureContext implements Context {
@@ -40,6 +41,8 @@ export type MockAzureHttpRequestOptions = {
     params?: Record<string, string>
     query?: Record<string, string>
     headers?: Record<string, string>
+    body?: unknown
+    rawBody?: string
 }
 
 export class MockAzureHttpResponse implements HttpResponseSimple {
@@ -75,6 +78,21 @@ export class MockAzureHttpRequest implements HttpRequest {
         }
         if (options.params) {
             this.params = { ...options.params };
+        }
+        if (options.rawBody !== undefined) {
+            this.rawBody = options.rawBody;
+        }
+        if (options.body !== undefined) {
+            if (isObject(options.body)) {
+                this.body = { ...options.body };
+            } else if (isArray(options.body)) {
+                this.body = [...options.body];
+            } else {
+                this.body = options.body;
+            }
+            if (this.rawBody === undefined) {
+                this.rawBody = JSON.stringify(this.body);
+            }
         }
     }
 }

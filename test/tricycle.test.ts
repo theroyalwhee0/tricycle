@@ -165,10 +165,17 @@ describe('Tricycle', () => {
     it('should have request raw body', async () => {
         const func: AzureFunction = new Tricycle()
             .endpoint((ctx) => {
-                expect(ctx.request.rawBody).to.equal(undefined);
+                expect(ctx.request.rawBody).to.equal('{"moss":"hanging"}');
+                expect(ctx.request.body).to.eql({ "moss": "hanging" });
                 ctx.response.status = HttpStatus.OK;
             });
-        const results = await mockCallFunc(func);
+        const results = await mockCallFunc(func, {
+            req: {
+                body: {
+                    "moss": "hanging"
+                }
+            }
+        });
         expect(results.response.status).to.equal(200);
     });
 });
