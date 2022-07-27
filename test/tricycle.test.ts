@@ -67,7 +67,7 @@ describe('Tricycle', () => {
         const endpointSpy: SinonSpy = <SinonSpy>endpoint;
         const tricycle = new Tricycle<TestContext>();
         const func: AzureFunction = tricycle
-            .middleware(middleware)
+            .use(middleware)
             .endpoint(endpoint);
         expect(func).to.be.a('function');
         expect((middlewareSpy).callCount).to.equal(0);
@@ -103,7 +103,7 @@ describe('Tricycle', () => {
         let tricycle = new Tricycle();
         for (const middleware of mw) {
             // Add the middleware.
-            tricycle = tricycle.middleware(middleware);
+            tricycle = tricycle.use(middleware);
         }
         const func: AzureFunction = tricycle.endpoint(endpoint);
         // Call the endpoint.
