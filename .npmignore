@@ -1,4 +1,5 @@
 examples/
+.github/
 bin/publish.sh
 Trotfile.toml
 .env
