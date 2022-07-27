@@ -52,6 +52,12 @@ export const myEndpoint = app.endpoint((context) => {
 
 
 ## History
+- v0.0.9
+    - Add ctx.request.body for request body.
+    - Add ctx.request.rawBody for request body string.
+    - Add ctx.request.params for path parameters.
+    - Add ctx.app to allow Tricycle instance to be accessed from middleware.
+    - Change app.middleware() to app.use().
 - v0.0.8
     - Add type specialization for http status and response headers for endpoints.
     - Add Typescript example code.
