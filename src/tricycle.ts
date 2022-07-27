@@ -26,7 +26,7 @@ export class Tricycle<TContext extends Context = Context> {
         }
     }
 
-    middleware(mw: Middleware<TContext>) {
+    use(mw: Middleware<TContext>) {
         return this.clone((copy) => {
             copy.#middleware.push(mw);
         });
