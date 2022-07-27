@@ -64,8 +64,9 @@ describe('Tricycle', () => {
         });
         const middlewareSpy: SinonSpy = <SinonSpy>middleware;
         const endpointSpy: SinonSpy = <SinonSpy>endpoint;
-        const func: AzureFunction = new Tricycle<TestContext>()
-            .middleware(middleware)
+        const tricycle = new Tricycle<TestContext>();
+        const func: AzureFunction = tricycle
+            .use(middleware)
             .endpoint(endpoint);
         expect(func).to.be.a('function');
         expect((middlewareSpy).callCount).to.equal(0);
@@ -101,7 +102,7 @@ describe('Tricycle', () => {
         let tricycle = new Tricycle();
         for (const middleware of mw) {
             // Add the middleware.
-            tricycle = tricycle.middleware(middleware);
+            tricycle = tricycle.use(middleware);
         }
         const func: AzureFunction = tricycle.endpoint(endpoint);
         // Call the endpoint.
@@ -140,6 +141,7 @@ describe('Tricycle', () => {
         expect((<JsonObject>results.response.body).cats).to.equal(1);
         expect((<Headers>results.response.headers)['x-im-a']).to.equal('cat');
     });
+
     it('should poulate request raw body', async () => {
         const func: AzureFunction = new Tricycle()
             .endpoint((ctx) => {
@@ -148,5 +150,26 @@ describe('Tricycle', () => {
             });
         const results = await mockCallFunc(func);
         expect(results.response.status).to.equal(200);
+    });
+    it('should populate ctx.params', async () => {
+        const endpoint: Middleware = spy((ctx) => {
+            expect(ctx.params).to.be.an('object');
+            expect(ctx.request.params).to.be.an('object');
+            expect(ctx.request.params).to.equal(ctx.params);
+            expect(ctx.params).to.eql({
+                bird: 'sparrow'
+            })
+        });
+        const func: AzureFunction = new Tricycle()
+            .endpoint(endpoint);
+        expect(func).to.be.a('function');
+        await mockCallFunc(func, {
+            req: {
+                params: {
+                    bird: 'sparrow'
+                }
+            }
+        });
+        expect((<SinonSpy>endpoint).callCount).to.equal(1);
     });
 });
