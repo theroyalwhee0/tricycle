@@ -83,6 +83,8 @@ export type MockAzureContextOptions = {
 }
 
 export async function mockCallFunc(func: AzureFunction, options: MockAzureContextOptions = {}): Promise<MockCallFuncResults> {
+    // NOTE: This is calling the Azure Function, this context is the Azure Context,
+    // and the request is the Azure Request.
     const context = new MockAzureContext(options);
     const request = context.req;
     const results = await func(context, request);
