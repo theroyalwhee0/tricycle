@@ -44,6 +44,8 @@ export class Tricycle<TContext extends Context = Context> {
         const context: TContext = new Context() as TContext;
         context.request.url = azureRequest.url;
         context.request.method = <string>azureRequest.method;
+        context.request.body = azureRequest.body;
+        context.request.rawBody = azureRequest.rawBody;
         context.platform.azureContext = azureContext;
         context.platform.azureRequest = azureRequest;
         return context;
