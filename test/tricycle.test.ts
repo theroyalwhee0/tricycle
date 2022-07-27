@@ -141,17 +141,7 @@ describe('Tricycle', () => {
         expect((<JsonObject>results.response.body).cats).to.equal(1);
         expect((<Headers>results.response.headers)['x-im-a']).to.equal('cat');
     });
-
-    it('should poulate request raw body', async () => {
-        const func: AzureFunction = new Tricycle()
-            .endpoint((ctx) => {
-                expect(ctx.request.rawBody).to.equal(undefined);
-                ctx.response.status = HttpStatus.OK;
-            });
-        const results = await mockCallFunc(func);
-        expect(results.response.status).to.equal(200);
-    });
-    it('should populate ctx.params', async () => {
+    it('should have request params', async () => {
         const endpoint: Middleware = spy((ctx) => {
             expect(ctx.params).to.be.an('object');
             expect(ctx.request.params).to.be.an('object');
@@ -171,5 +161,14 @@ describe('Tricycle', () => {
             }
         });
         expect((<SinonSpy>endpoint).callCount).to.equal(1);
+    });
+    it('should have request raw body', async () => {
+        const func: AzureFunction = new Tricycle()
+            .endpoint((ctx) => {
+                expect(ctx.request.rawBody).to.equal(undefined);
+                ctx.response.status = HttpStatus.OK;
+            });
+        const results = await mockCallFunc(func);
+        expect(results.response.status).to.equal(200);
     });
 });

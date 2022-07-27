@@ -3,10 +3,12 @@ import {
     ContextBindingData, ContextBindings, ExecutionContext,
     Logger, TraceContext, Form,
     HttpMethod, HttpRequestHeaders, HttpRequestParams,
-    HttpRequestQuery, HttpRequestUser, AzureFunction
+    HttpRequestQuery, HttpRequestUser, AzureFunction, HttpResponse, HttpResponseSimple, HttpResponseHeaders, Cookie
 } from '@azure/functions';
+import { Mock } from './mock';
 
 export class MockAzureContext implements Context {
+    [Mock] = true;
     invocationId: string;
     executionContext: ExecutionContext;
     bindings: ContextBindings;
@@ -19,7 +21,7 @@ export class MockAzureContext implements Context {
         throw new Error('Method not implemented.');
     }
     req: HttpRequest;
-    res: { [key: string]: unknown; };
+    res: HttpResponse;
 
     constructor(options: MockAzureContextOptions = {}) {
         if (options.invocationId) {
@@ -31,10 +33,7 @@ export class MockAzureContext implements Context {
         };
         this.bindingDefinitions = [];
         this.req = new MockAzureHttpRequest(options.req);
-        this.res = {
-            headers: {},
-            body: undefined,
-        };
+        this.res = new MockAzureHttpResponse();
     }
 }
 export type MockAzureHttpRequestOptions = {
@@ -43,7 +42,17 @@ export type MockAzureHttpRequestOptions = {
     headers?: Record<string, string>
 }
 
+export class MockAzureHttpResponse implements HttpResponseSimple {
+    [Mock]: true;
+    headers?: HttpResponseHeaders = {};
+    cookies?: Cookie[] = [];
+    body?: unknown;
+    statusCode?: number | string = 200;
+    enableContentNegotiation?: boolean = false;
+}
+
 export class MockAzureHttpRequest implements HttpRequest {
+    [Mock] = true;
     url = '/birdseed'
     method: HttpMethod = 'GET'
     headers: HttpRequestHeaders = {}
@@ -73,7 +82,7 @@ export class MockAzureHttpRequest implements HttpRequest {
 export type MockCallFuncResults = {
     context: Context,
     request: HttpRequest
-    response: { [key: string]: unknown; }
+    response: HttpResponse
 };
 
 export type MockAzureContextOptions = {
