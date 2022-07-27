@@ -3,7 +3,7 @@ import {
     Context as AzureContext,
     HttpRequest as AzureHttpRequest
 } from '@azure/functions';
-import { isInteger, isObject, isString } from '@theroyalwhee0/istype';
+import { isInteger, isObject } from '@theroyalwhee0/istype';
 import { DetailedError } from './utilities/error';
 import { HttpStatus, HTTP_STATUS_MIN, HTTP_STATUS_MAX } from './status';
 import { JsonObject, JsonValue } from './utilities/json';
@@ -13,7 +13,6 @@ import { Context, RestrictContext } from './context';
 import { Middleware, Next } from './middleware';
 import { ResponseBody } from './response';
 import { HttpMessage } from './httpmsg';
-import { RequestParams } from './request';
 
 type CloneFunction<TContext extends Context> = (tricycle: Tricycle<TContext>) => void;
 
