@@ -162,15 +162,20 @@ describe('Tricycle', () => {
         });
         expect((<SinonSpy>endpoint).callCount).to.equal(1);
     });
-    it('should have request raw body', async () => {
+    it('should have request bodys', async () => {
         const func: AzureFunction = new Tricycle()
             .endpoint((ctx) => {
                 expect(ctx.request.rawBody).to.equal('{"moss":"hanging"}');
                 expect(ctx.request.body).to.eql({ "moss": "hanging" });
+                expect(ctx.request.is('text/plain')).to.equal(false);
+                expect(ctx.request.is('application/json')).to.equal('application/json');
                 ctx.response.status = HttpStatus.OK;
             });
         const results = await mockCallFunc(func, {
             req: {
+                headers: {
+                    'content-type': 'application/json'
+                },
                 body: {
                     "moss": "hanging"
                 }
