@@ -15,6 +15,18 @@ export interface IRequest {
 
 export type RequestBody = JsonValue;
 
+export type RequestWithBody<T extends RequestBody> = RequiredProperty<Request<T>, 'body'>
+
+type RequiredProperty<T, K extends keyof T> = T & {
+    [P in K]-?: T[P];
+};
+
+export type MimeBodyMap = {
+    'application/json': JsonValue
+}
+
+export type MimeBodyKeys = keyof MimeBodyMap;
+
 export class Request<TBody extends RequestBody = JsonValue> implements IRequest {
     method: string
     url: string
@@ -25,30 +37,31 @@ export class Request<TBody extends RequestBody = JsonValue> implements IRequest 
     params: RequestParams = {}
     headers: Headers = {}
 
-    // is(mimeType: 'application/json'): this is Request<JsonValue>;
-    is(mimeType: string, ...mimeTypes: string[]): boolean | null | string {
-        // NOTE: This does not impliment pattern matching.
+    is(...mimeTypes: string[]): boolean | null | string {
+        // NOTE: This does not impliment pattern matching (image/*).
+        // NOTE: This does not impliment mime type aliases (json).
         if (this.body === undefined) {
             return null
-        } else if (
-            (this.type === mimeType) ||
-            (mimeTypes.includes(this.type))
-        ) {
+        } else if (mimeTypes.includes(this.type)) {
             return this.type;
         } else {
             return false;
         }
     }
 
-    // isJson(): this is Request<JsonValue> {
-    //     return this.is(MimeTypes.JSON);
-    // }
+    isType<K extends MimeBodyKeys | string>(mimeType: K): this is RequestWithBody<K extends MimeBodyKeys ? MimeBodyMap[K] : RequestBody> {
+        return !!this.is(mimeType);
+    }
 
-    // isJsonObject(): this is Request<JsonObject> {
-    //     return this.isJson() && isObject(this.body);
-    // }
+    isJson<T extends JsonValue = JsonValue>(): this is RequestWithBody<T> {
+        return this.isType('application/json');
+    }
 
-    // isJsonArray(): this is Request<JsonArray> {
-    //     return this.isJson() && isArray(this.body);
-    // }
+    isJsonObject<T extends JsonObject = JsonObject>(): this is RequestWithBody<T> {
+        return isObject(this.body) && this.isJson<T>();
+    }
+
+    isJsonArray<T extends JsonArray = JsonArray>(): this is RequestWithBody<T> {
+        return isArray(this.body) && this.isJson();
+    }
 }
