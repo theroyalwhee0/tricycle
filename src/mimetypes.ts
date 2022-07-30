@@ -1,6 +1,6 @@
 export enum MimeTypes {
-    Text = 'text/plain',
-    JSON = 'application/json',
-    HTML = 'text/html',
-    CSS = 'text/css'
+    TextPlain = 'text/plain',
+    ApplicationJson = 'application/json',
+    TextHtml = 'text/html',
+    TextCss = 'text/css',
 }

@@ -9,14 +9,7 @@ import { Middleware } from '../src/middleware';
 import { mockCallFunc } from './mock/azurefunction';
 import { JsonObject } from '../src/utilities/json';
 import { HttpStatus } from '../src/status';
-
-function delay(ms: number): Promise<void> {
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            resolve();
-        }, ms);
-    });
-}
+import { delay } from './helpers';
 
 describe('Tricycle', () => {
     it('should be a class', () => {
@@ -162,15 +155,32 @@ describe('Tricycle', () => {
         });
         expect((<SinonSpy>endpoint).callCount).to.equal(1);
     });
-    it('should have request raw body', async () => {
+    it('should have request bodys', async () => {
         const func: AzureFunction = new Tricycle()
             .endpoint((ctx) => {
+                type MossBody = {
+                    moss: string
+                };
                 expect(ctx.request.rawBody).to.equal('{"moss":"hanging"}');
                 expect(ctx.request.body).to.eql({ "moss": "hanging" });
+                expect(ctx.request.is('text/plain')).to.equal(false);
+                expect(ctx.request.is('application/json')).to.equal('application/json');
+                expect(ctx.request.isType('text/plain')).to.equal(false);
+                expect(ctx.request.isType('application/json')).to.equal(true);
+                if (ctx.request.isJsonObject<MossBody>()) {
+                    const body: MossBody = ctx.request.body;
+                    // expect(body.vine).to.equal(undefined); // This should fail to compile.
+                    expect(body.moss).to.equal('hanging');
+                } else {
+                    expect.fail('should have passed isJsonObject');
+                }
                 ctx.response.status = HttpStatus.OK;
             });
         const results = await mockCallFunc(func, {
             req: {
+                headers: {
+                    'content-type': 'application/json'
+                },
                 body: {
                     "moss": "hanging"
                 }

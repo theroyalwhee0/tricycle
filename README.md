@@ -52,6 +52,10 @@ export const myEndpoint = app.endpoint((context) => {
 
 
 ## History
+- v0.0.10
+    - Add request.is() to check mime type.
+    - Add request.is* type guards for request body.
+    - Change MimeType names.
 - v0.0.9
     - Add ctx.request.body for request body.
     - Add ctx.request.rawBody for request body string.
