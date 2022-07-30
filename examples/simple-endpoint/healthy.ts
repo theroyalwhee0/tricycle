@@ -9,11 +9,11 @@ type HealthyHeaders = {
     'content-type': string
 }
 
-const healthyQuery = tricycle.endpoint<HealthyBody, HealthyStatus, HealthyHeaders>(async (ctx) => {
+const healthyQuery = tricycle.endpoint<HealthyBody, HealthyStatus, HealthyHeaders>((ctx) => {
     ctx.body = {
         ok: true
     };
-    ctx.response.headers[HeaderNames.ContentType] = MimeTypes.JSON;
+    ctx.response.headers[HeaderNames.ContentType] = MimeTypes.ApplicationJson;
     ctx.status = HttpStatus.OK;
 });
 

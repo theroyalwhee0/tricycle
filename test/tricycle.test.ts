@@ -7,17 +7,9 @@ import { Headers } from '../src/headers';
 import { Context } from '../src/context';
 import { Middleware } from '../src/middleware';
 import { mockCallFunc } from './mock/azurefunction';
-import { JsonObject, JsonValue } from '../src/utilities/json';
+import { JsonObject } from '../src/utilities/json';
 import { HttpStatus } from '../src/status';
-import { RequestBody } from '../src/request';
-
-function delay(ms: number): Promise<void> {
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            resolve();
-        }, ms);
-    });
-}
+import { delay } from './helpers';
 
 describe('Tricycle', () => {
     it('should be a class', () => {

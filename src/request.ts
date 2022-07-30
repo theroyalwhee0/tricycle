@@ -54,7 +54,7 @@ export class Request<TBody extends RequestBody = JsonValue> implements IRequest 
     }
 
     isJson<T extends JsonValue = JsonValue>(): this is RequestWithBody<T> {
-        return this.isType('application/json');
+        return this.isType(MimeTypes.ApplicationJson);
     }
 
     isJsonObject<T extends JsonObject = JsonObject>(): this is RequestWithBody<T> {
