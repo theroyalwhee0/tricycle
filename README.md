@@ -1,4 +1,4 @@
-# @tricycle/tricycle : TricycleJS Azure Functions Framework
+# TricycleJS Azure Functions Framework
 
 ## Description
 TricycleJS is a library to simplify working with Azure Functions in Typescript. It is modeled after [KoaJS](https://koajs.com/) when possible.
@@ -7,6 +7,7 @@ TricycleJS is currently in Alpha and it's API is unstable. Please don't use it f
 
 Features
 - Middlware: Strongly typed middleware
+- Endpoint: Type Specialization for Response Body, Headers, and Status
 - API: API modeled after the KoaJS API
 - Azure Functions: Access to underlying Azure Functions primatives
 
@@ -45,6 +46,10 @@ export const myEndpoint = app.endpoint((context) => {
     };
 });
 ```
+
+## First Party Middleware
+- [Log Winston](https://github.com/theroyalwhee0/tricycle-log-winston) - Adds a Winston Logger to the context useing the Azure Function Logger as a transport
+
 
 ## Links
 - GitHub: https://github.com/theroyalwhee0/tricycle
