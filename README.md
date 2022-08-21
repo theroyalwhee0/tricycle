@@ -57,6 +57,10 @@ export const myEndpoint = app.endpoint((context) => {
 
 
 ## History
+- v0.0.11
+    - Change Request values to be wrappers of underlying Azure Request.
+    - Add various Request URL replated properties.
+    - Simplify code and improve comments and tests.
 - v0.0.10
     - Add request.is() to check mime type.
     - Add request.is* type guards for request body.

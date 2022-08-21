@@ -1,3 +1,7 @@
+import {
+    Context as AzureContext,
+    HttpRequest as AzureHttpRequest
+} from '@azure/functions';
 import { IResponse, Response, ResponseBody } from './response';
 import { Request, RequestParams } from './request';
 import { Platform } from './platform';
@@ -19,22 +23,42 @@ export interface IContextAliases<TBody extends ResponseBody = ResponseBody> {
 }
 
 export class Context<TBody extends ResponseBody = ResponseBody> implements IContext {
-    // REF: https://koajs.com/#request
 
-    app: Tricycle
+    app: Tricycle;
+    response:Response<TBody>;
+    request:Request;
+    platform:Platform;
+    
+    /**
+     * Construct an instance of Context.
+     * NOTE: Some items are references to the original data, not copies.
+     * @param app 
+     * @param azureContext 
+     * @param azureRequest 
+     */
+    constructor(app: Tricycle, azureContext: Readonly<AzureContext>, azureRequest: Readonly<AzureHttpRequest>) {
+        this.app = app;
+        this.response = new Response<TBody>(azureContext, azureRequest);
+        this.platform = new Platform(azureContext, azureRequest);
+        this.request = new Request(azureContext, azureRequest);
+    }
 
-    response = new Response<TBody>();
-    request = new Request();
-    platform = new Platform();
+    /**
+     * Create an instance of Context.
+     * NOTE: Some items are references to the original data, not copies.
+     * @param app The Tricycle app.
+     * @param azureContext The Azure context.
+     * @param azureRequest The Azure request.
+     * @returns A new instance of Context.
+     */
+    static create<TContext extends IContext>(app: Tricycle, azureContext: Readonly<AzureContext>, azureRequest: Readonly<AzureHttpRequest>): TContext {
+        return new Context(app, azureContext, azureRequest) as unknown as TContext;
+    }
 
     get params(): RequestParams {
         return this.request.params;
     }
-
-    constructor(app: Tricycle) {
-        this.app = app;
-    }
-
+    
     get url(): string {
         return this.request.url;
     }
@@ -81,11 +105,9 @@ export type RestrictContext<
     THeaders extends IContext['response']['headers'],
     > =
     TContext & {
-        // Omit<TContext, 'body' | 'status'> & {
         // Response.
         body: TBody,
         status: number & TStatus,
-        // Omit<TContext['response'], 'body' | 'status' | 'headers'>
         response: TContext['response'] & {
             body: TBody | NoneType,
             status: number & TStatus,
