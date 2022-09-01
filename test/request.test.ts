@@ -57,6 +57,11 @@ describe('request', () => {
     it('should have a method string', () => {
         const azureContext = mockAzureContext();
         const request = new Request(azureContext, azureContext.req);
-        expect(request.method).to.equal('GET');
+        expect(request.method).to.equal('GET');        
     });    
+    it('should have a ip string', () => {
+        const azureContext = mockAzureContext();
+        const request = new Request(azureContext, azureContext.req);
+        expect(request.ip).to.equal('10.9.8.7');
+    });
 });

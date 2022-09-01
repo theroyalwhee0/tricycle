@@ -105,6 +105,8 @@ export enum HeaderNames {
     // connection: keep-alive
     Date = 'date',
     // date = Tue, 12 Jul 2022 21:09:53 GMT
+    ForwardedFor = 'x-forwarded-for',
+    // x–forwarded-for: 203.0.113.195, 2001:db8:85a3:8d3:1319:8a2e:370:7348, 10.9.8.7
     ETag = 'etag',
     // etag: "ab3bb444774e6d8e079a0e7186ed2037"
     Host = 'host',

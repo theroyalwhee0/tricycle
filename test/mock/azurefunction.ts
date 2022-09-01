@@ -54,6 +54,10 @@ export class MockAzureHttpResponse implements HttpResponseSimple {
     enableContentNegotiation?: boolean = false;
 }
 
+const defaultHeaders = {
+    'X-Forwarded-For': '203.0.113.195, 2001:db8:85a3:8d3:1319:8a2e:370:7348, 10.9.8.7'
+}
+
 export class MockAzureHttpRequest implements HttpRequest {
     [Mock] = true;
     url = 'https://localhost:9090/registration?c=summer2022'
@@ -70,9 +74,7 @@ export class MockAzureHttpRequest implements HttpRequest {
     }
 
     constructor(options: MockAzureHttpRequestOptions = {}) {
-        if (options.headers) {
-            this.headers = { ...options.headers };
-        }
+        this.headers = Object.assign(this.headers, defaultHeaders, options.headers);
         if (options.query) {
             this.query = { ...options.query };
         }
