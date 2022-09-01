@@ -48,7 +48,7 @@ export const myEndpoint = app.endpoint((context) => {
 ```
 
 ## First Party Middleware
-- [Log Winston](https://github.com/theroyalwhee0/tricycle-log-winston) - Adds a Winston Logger to the context useing the Azure Function Logger as a transport
+- [Log Winston](https://github.com/theroyalwhee0/tricycle-log-winston) - Adds a Winston Logger to the context using the Azure Function Logger as a transport
 
 
 ## Links
@@ -58,6 +58,7 @@ export const myEndpoint = app.endpoint((context) => {
 
 ## History
 - v0.0.11
+    - Add request ip.
     - Change Request values to be wrappers of underlying Azure Request.
     - Add various Request URL replated properties.
     - Simplify code and improve comments and tests.
