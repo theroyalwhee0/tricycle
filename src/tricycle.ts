@@ -6,19 +6,14 @@ import {
 import { isInteger, isObject } from '@theroyalwhee0/istype';
 import { DetailedError } from './utilities/error';
 import { HttpStatus, HTTP_STATUS_MIN, HTTP_STATUS_MAX } from './status';
-import { JsonObject, JsonValue } from './utilities/json';
+import { JsonValue } from './utilities/json';
 import { None, NoneType } from './utilities/none';
-import { CaseInsensitiveHeaders, HeaderNames, Headers } from './headers';
+import { Headers } from './headers';
 import { Context, RestrictContext } from './context';
 import { Middleware, Next } from './middleware';
 import { ResponseBody } from './response';
 import { HttpMessage } from './httpmsg';
 
-type AzureHttpRequestEx = AzureHttpRequest & {
-    // Add optional originalUrl to HttpRequest.
-    // REF: https://github.com/Azure/azure-functions-nodejs-worker/issues/589
-    originalUrl?: string
-};
 
 type CloneFunction<TContext extends Context> = (tricycle: Tricycle<TContext>) => void;
 
@@ -44,28 +39,6 @@ export class Tricycle<TContext extends Context = Context> {
             fn(copy);
         }
         return copy;
-    }
-
-    #createContext(azureContext: Readonly<AzureContext>, azureRequest: Readonly<AzureHttpRequest>): TContext {
-        // NOTE: To prevent allocations some items are references to the original data, not copies.
-        const ctx: TContext = new Context(this) as TContext;
-        // Request.
-        const url = azureRequest.url;
-        const originalUrl = (<AzureHttpRequestEx>azureRequest).originalUrl ?? '';
-        const requestHeaders = new CaseInsensitiveHeaders(azureRequest.headers);
-        const contentType = requestHeaders[HeaderNames.ContentType] ?? '';
-        ctx.request.method = azureRequest.method;
-        ctx.request.url = url;
-        ctx.request.originalUrl = originalUrl || url;
-        ctx.request.body = azureRequest.body;
-        ctx.request.rawBody = azureRequest.rawBody;
-        ctx.request.params = azureContext.req.params;
-        ctx.request.headers = requestHeaders;
-        ctx.request.type = contentType;
-        // Platform.
-        ctx.platform.azureContext = azureContext;
-        ctx.platform.azureRequest = azureRequest;
-        return ctx;
     }
 
     #nextFactory(): [Next, () => void] {
@@ -105,14 +78,14 @@ export class Tricycle<TContext extends Context = Context> {
     }
 
     endpoint<
-        TBody extends ResponseBody = JsonObject,
+        TBody extends ResponseBody = JsonValue,
         TStatus extends number = number,
         THeaders extends Headers = Headers,
         >(
             fn: Middleware<RestrictContext<TContext, TBody, TStatus, THeaders>>
         ): AzureFunction {
         const azureEndpoint = async (azureContext: Readonly<AzureContext>, azureRequest: Readonly<AzureHttpRequest>) => {
-            const context = this.#createContext(azureContext, azureRequest);
+            const context = Context.create<TContext>(this, azureContext, azureRequest);
             await this.#invokeMiddleware(
                 context,
                 ...this.#middleware,

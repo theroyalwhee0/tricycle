@@ -12,39 +12,49 @@ export interface Headers {
  * Initial key case will be preserved..
  */
 export class CaseInsensitiveHeaders implements Headers {
-    #mapping: Record<string, string> = {};
-    #getKey(prop: string): string | undefined {
-        if (isString(prop)) {
-            const lower = prop.toLowerCase();
-            if (lower in this.#mapping) {
-                return this.#mapping[lower];
-            } else {
-                return undefined;
-            }
-        } else {
-            return prop;
+    /*
+     * @param value The header value to use.
+     * @param clone Clone if true, wrap if false.
+     */
+    constructor(value: Headers={}, clone = false) { 
+        if (clone) {
+            value = Object.assign({}, value);
         }
-    }
-    #insertKey(prop: string): string {
-        if (isString(prop)) {
-            const lower = prop.toLowerCase();
-            if (lower in this.#mapping) {
-                return this.#mapping[lower];
+        const mapping: Record<string, string> = {};
+        Object.keys(value).forEach((key) => {
+            insertKey(key);
+        });
+        function getKey(prop: string): string | undefined {
+            if (isString(prop)) {
+                const lower = prop.toLowerCase();
+                if (lower in mapping) {
+                    return mapping[lower];
+                } else {
+                    return undefined;
+                }
             } else {
-                this.#mapping[lower] = prop;
-                return prop
+                return prop;
             }
-        } else {
-            return prop;
         }
-    }
-    constructor(value?: Headers) {
-        const proxy = new Proxy<CaseInsensitiveHeaders>(this, {
-            has(target, prop: string): boolean {
-                return target.#getKey(prop) !== undefined;
+        function insertKey(prop: string): string {
+            if (isString(prop)) {
+                const lower = prop.toLowerCase();
+                if (lower in mapping) {
+                    return mapping[lower];
+                } else {
+                    mapping[lower] = prop;
+                    return prop
+                }
+            } else {
+                return prop;
+            }
+        }
+        return new Proxy<CaseInsensitiveHeaders>(value, {
+            has(_target, prop: string): boolean {
+                return getKey(prop) !== undefined;
             },
-            get(target, prop: string): string | undefined {
-                const key = target.#getKey(prop);
+            get(target:Headers, prop: string): string | undefined {
+                const key = getKey(prop);
                 if (key === undefined) {
                     return undefined;
                 } else {
@@ -52,14 +62,14 @@ export class CaseInsensitiveHeaders implements Headers {
                 }
             },
             set(target, prop: string, value): boolean {
-                const key = target.#insertKey(prop);
+                const key = insertKey(prop);
                 target[key] = value;
                 return true;
             },
             deleteProperty(target, prop: string): boolean {
-                const key = target.#getKey(prop);
-                if (prop in target.#mapping) {
-                    delete target.#mapping[prop];
+                const key = getKey(prop);
+                if (prop in mapping) {
+                    delete mapping[prop];
                 }
                 if (key !== undefined && key in target) {
                     delete target[key];
@@ -68,11 +78,11 @@ export class CaseInsensitiveHeaders implements Headers {
                 return false;
             }
         });
-        if (value) {
-            Object.assign(proxy, value);
-        }
-        return proxy;
     }
+
+    /**
+     * Key/Value Header pairs.
+     */
     [key: string]: string;
 }
 

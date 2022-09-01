@@ -18,14 +18,14 @@ describe("isValidHttpStatus", () => {
     });
     const validStatusCodes = [100, 200, 404, 500, 599,];
     validStatusCodes.forEach((value) => {
-        it(`should validate valid status: ${value}`, () => {
+        it(`should pass valid status: ${value}`, () => {
             const result = isValidHttpStatus(value);
             expect(result).to.equal(true);
         });
     });
     const invalidStatusCodes = [0, 99, 200.1, 600, null, undefined, "200"];
     invalidStatusCodes.forEach((value) => {
-        it(`should validate invalid status: ${value}`, () => {
+        it(`should fail invalid status: ${value}`, () => {
             const result = isValidHttpStatus(value as number);
             expect(result).to.equal(false);
         });

@@ -18,6 +18,49 @@ describe('CaseInsensitiveHeaders', () => {
             c: 'four'
         });
     });
+    it('should wrap an existing header object', () => {
+        const wrapped = {
+            A: "blue", // This should be replaced and case should be kept.
+            C: "green", // This should be replaced and case should be kept.
+            z: "red", // This should be left alone.
+        };
+        const headers = new CaseInsensitiveHeaders(wrapped);
+        headers.a = 'one'; // This should replace 'A'.
+        headers.b = 'two'; // This should insert 'b'.
+        headers.c = 'three'; // This should replace 'C'.
+        headers.C = 'four'; // This should replace 'C' again.
+        const expected = {
+            A: 'one',
+            b: 'two',
+            C: 'four',
+            z: 'red'
+        };
+        expect(headers).to.eql(expected);
+        expect(wrapped).to.eql(expected);
+    });
+    it('should clone an existing header object', () => {
+        const wrapped = {
+            A: "blue", // This should be replaced and case should be kept.
+            C: "green", // This should be replaced and case should be kept.
+            z: "red", // This should be left alone.
+        };
+        const headers = new CaseInsensitiveHeaders(wrapped, true);
+        headers.a = 'one'; // This should replace 'A'.
+        headers.b = 'two'; // This should insert 'b'.
+        headers.c = 'three'; // This should replace 'C'.
+        headers.C = 'four'; // This should replace 'C' again.
+        expect(headers).to.eql({
+            A: 'one',
+            b: 'two',
+            C: 'four',
+            z: 'red'
+        });
+        expect(wrapped).to.eql({
+            A: 'blue',
+            C: 'green',
+            z: 'red',
+        });
+    });
     it('should support deleting headers', () => {
         const headers = new CaseInsensitiveHeaders();
         headers.a = 'one';

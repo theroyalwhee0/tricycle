@@ -56,7 +56,7 @@ export class MockAzureHttpResponse implements HttpResponseSimple {
 
 export class MockAzureHttpRequest implements HttpRequest {
     [Mock] = true;
-    url = '/birdseed'
+    url = 'https://localhost:9090/registration?c=summer2022'
     method: HttpMethod = 'GET'
     headers: HttpRequestHeaders = {}
     query: HttpRequestQuery = {}
@@ -107,6 +107,10 @@ export type MockAzureContextOptions = {
     invocationId?: string
     bindingData?: Partial<ContextBindingData>
     req?: MockAzureHttpRequestOptions
+}
+
+export function mockAzureContext(options: MockAzureContextOptions = {}):MockAzureContext {
+    return new MockAzureContext(options);
 }
 
 export async function mockCallFunc(func: AzureFunction, options: MockAzureContextOptions = {}): Promise<MockCallFuncResults> {
