@@ -1,5 +1,5 @@
-import tricycle from './app';
 import { HeaderNames, MimeTypes, HttpStatus } from '@tricycle/tricycle';
+import tricycle from './app';
 
 type HealthyBody = {
     ok: true

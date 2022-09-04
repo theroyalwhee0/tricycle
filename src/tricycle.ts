@@ -3,42 +3,65 @@ import {
     Context as AzureContext,
     HttpRequest as AzureHttpRequest
 } from '@azure/functions';
-import { isInteger, isObject } from '@theroyalwhee0/istype';
+import { isArray, isInteger, isObject, isString, isBoolean } from '@theroyalwhee0/istype';
 import { DetailedError } from './utilities/error';
 import { HttpStatus, HTTP_STATUS_MIN, HTTP_STATUS_MAX } from './status';
 import { JsonValue } from './utilities/json';
 import { None, NoneType } from './utilities/none';
-import { Headers } from './headers';
+import { HeaderNames, Headers } from './headers';
 import { Context, RestrictContext } from './context';
 import { Middleware, Next } from './middleware';
 import { ResponseBody } from './response';
 import { HttpMessage } from './httpmsg';
+import { MimeTypes } from './mimetypes';
 
+/**
+ * Clone callback type.
+ */
+export type CloneCallback<TContext extends Context> = (tricycle: Tricycle<TContext>) => void;
 
-type CloneFunction<TContext extends Context> = (tricycle: Tricycle<TContext>) => void;
-
+/**
+ * The main Tricycle application class.
+ */
 export class Tricycle<TContext extends Context = Context> {
 
+    /**
+     * Middleware list.
+     */
     readonly #middleware: Middleware<TContext>[] = [];
 
+    /**
+     * Create a new Tricycle instance.
+     * @param from Create new instance by cloning existing instance.
+     */
     constructor(from?: Tricycle<TContext>) {
         if (isObject(from)) {
             this.#middleware = from.#middleware.concat();
         }
     }
 
-    use(mw: Middleware<TContext>) {
+    /**
+     * Attach a middleware function.
+     * @param middlware The middleware to attach.
+     * @returns A cloned instance of Tricycle.
+     */
+    use(middlware: Middleware<TContext>) {
         return this.clone((copy) => {
-            copy.#middleware.push(mw);
+            copy.#middleware.push(middlware);
         });
     }
 
-    clone(fn?: CloneFunction<TContext>): Tricycle<TContext> {
-        const copy = new Tricycle<TContext>(this);
-        if (fn) {
-            fn(copy);
+    /**
+     * Clone an instance of Tricycle.
+     * @param callback A callback to call after clone.
+     * @returns The cloned instance.
+     */
+    clone(callback?: CloneCallback<TContext>): Tricycle<TContext> {
+        const instance = new Tricycle<TContext>(this);
+        if (callback) {
+            callback(instance);
         }
-        return copy;
+        return instance;
     }
 
     #nextFactory(): [Next, () => void] {
@@ -77,6 +100,11 @@ export class Tricycle<TContext extends Context = Context> {
         }
     }
 
+    /**
+     * Create a Azure HTTP endpoint.
+     * @param fn The endpoint function.
+     * @returns An AzureFunction HTTP endpoint.
+     */
     endpoint<
         TBody extends ResponseBody = JsonValue,
         TStatus extends number = number,
@@ -84,21 +112,18 @@ export class Tricycle<TContext extends Context = Context> {
         >(
             fn: Middleware<RestrictContext<TContext, TBody, TStatus, THeaders>>
         ): AzureFunction {
-        const azureEndpoint = async (azureContext: Readonly<AzureContext>, azureRequest: Readonly<AzureHttpRequest>) => {
+        return async (azureContext: Readonly<AzureContext>, azureRequest: Readonly<AzureHttpRequest>) => {
             const context = Context.create<TContext>(this, azureContext, azureRequest);
             await this.#invokeMiddleware(
                 context,
                 ...this.#middleware,
                 <Middleware<TContext>><unknown>fn
             );
-            let status: number | NoneType = None;
-            let body: JsonValue | NoneType = None;
-            let headers: Headers | NoneType = None;
+            const headers: Headers = context.response.headers;
+            let status: number | NoneType = context.response.status;
+            let body: ResponseBody | NoneType = context.response.body;
 
-            status = context.response.status;
-            body = context.response.body;
-            headers = context.response.headers;
-
+            Object.assign(azureContext.res.headers, headers);
             if (body === None && status === None) {
                 status = HttpStatus.NOT_FOUND
                 body = HttpMessage.NOT_FOUND;
@@ -111,13 +136,33 @@ export class Tricycle<TContext extends Context = Context> {
                 ) {
                     throw new DetailedError(`"${status}" is not a valid HTTP status.`);
                 }
-                azureContext.res.status = status;
             }
-            Object.assign(azureContext.res.headers, headers);
+            let contentType = headers[HeaderNames.ContentType];
             if (body !== None) {
+                // Default status/content type from body.
+                if (body === null) {
+                    // If null and status is not set and content-type not set, set status to no-content.
+                    if (!contentType && status === None) {
+                        status = HttpStatus.NO_CONTENT;
+                    }
+                } else if (isString(body)) {
+                    // If string and content-type not set, set to application/json.
+                    if (!contentType) {
+                        contentType = MimeTypes.TextPlain;
+                    }
+                } else if (isArray(body) || isObject(body) || isBoolean(body)) {
+                    // If Array, Object, or Boolean and content-type not set, set to application/json.
+                    if (!contentType) {
+                        contentType = MimeTypes.ApplicationJson;
+                    }
+                }
                 azureContext.res.body = body;
             }
-        }
-        return azureEndpoint;
+            if(status === None) {
+                status = 200;
+            }            
+            azureContext.res.status = status;
+            azureContext.res.headers[HeaderNames.ContentType] = contentType || 'plain/text';
+        };
     }
 }

@@ -57,6 +57,9 @@ export const myEndpoint = app.endpoint((context) => {
 
 
 ## History
+- v0.0.12 - 2022-09-04
+    - Default status and content-type for various body types.
+    - Improve tests.
 - v0.0.11
     - Add request ip.
     - Change Request values to be wrappers of underlying Azure Request.
