@@ -30,6 +30,8 @@ export interface IRequest {
     body?: JsonValue
     rawBody?: string
     params: RequestParams
+
+    ip:string
     
     URL: URL
     url: string
@@ -38,6 +40,7 @@ export interface IRequest {
     search:string
     querystring: string
     query:Readonly<Record<string,string>>
+
 
     /**
      * The size of the request body.
@@ -112,6 +115,12 @@ export class Request<TBody extends RequestBody = JsonValue> implements IRequest 
     headers: Headers
 
     /**
+     * The ip address of the client.
+     * An empty string if not known.
+     */
+    #ip: string | undefined
+
+    /**
      * Create an instance of the Context.Request.
      * @param azureContext The current Azure Context.
      * @param azureRequest The current Azure Request.
@@ -131,6 +140,17 @@ export class Request<TBody extends RequestBody = JsonValue> implements IRequest 
             this.#type = this.headers[HeaderNames.ContentType] ?? '';
         }
         return this.#type;
+    }
+
+    /**
+     * Get the originating IP address.
+     */
+    get ip():string {
+        if(this.#ip === undefined) {
+            const forwardedFor = (this.headers[HeaderNames.ForwardedFor] ?? '').split(',');
+            this.#ip = forwardedFor[forwardedFor.length-1].trim()
+        }
+        return this.#ip;
     }
 
     /**

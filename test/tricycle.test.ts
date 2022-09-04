@@ -21,8 +21,10 @@ describe('Tricycle', () => {
     });
     it('should be clonable', () => {
         const tricycle = new Tricycle();
-        const clone = tricycle.clone();
+        const callback = spy();
+        const clone = tricycle.clone(callback);
         expect(clone).to.be.instanceOf(Tricycle);
+        expect(callback.callCount).to.equal(1);
     });
     it('should build callable endpoint', async () => {
         type TestBody = Record<string, boolean>;
@@ -155,7 +157,7 @@ describe('Tricycle', () => {
         });
         expect((<SinonSpy>endpoint).callCount).to.equal(1);
     });
-    it('should have request bodys', async () => {
+    it('should have request bodies', async () => {
         const func: AzureFunction = new Tricycle()
             .endpoint((ctx) => {
                 expect(ctx.request.rawBody).to.equal('{"moss":"hanging"}');
@@ -175,27 +177,27 @@ describe('Tricycle', () => {
         expect(results.response.status).to.equal(200);
     });
     it('should have have the correct mime type', async () => {
-        const func: AzureFunction = new Tricycle()
-            .endpoint((ctx) => {
-                type MossBody = {
-                    moss: string
-                };
-                expect(ctx.request.body).to.eql({ "moss": "hanging" });
-                expect(ctx.request.headers['content-type']).to.equal('application/json');
-                expect(ctx.request.is('text/plain')).to.equal(false);
-                expect(ctx.request.is('application/json')).to.equal('application/json');
-                expect(ctx.request.isType('text/plain')).to.equal(false);
-                expect(ctx.request.isType('application/json')).to.equal(true);
-                if (ctx.request.isJsonObject<MossBody>()) {
-                    // TODO: Why does this compile ok, but fail in VSCode hilighting?
-                    const body: MossBody = ctx.request.body;
-                    // expect(body.vine).to.equal(undefined); // This should fail to compile.
-                    expect(body.moss).to.equal('hanging');
-                } else {
-                    expect.fail('should have passed isJsonObject');
-                }
-                ctx.response.status = HttpStatus.OK;
-            });
+        const tricycle = new Tricycle()
+        const func = tricycle.endpoint((ctx) => {
+            type MossBody = {
+                moss: string
+            };
+            expect(ctx.request.body).to.eql({ "moss": "hanging" });
+            expect(ctx.request.headers['content-type']).to.equal('application/json');
+            expect(ctx.request.is('text/plain')).to.equal(false);
+            expect(ctx.request.is('application/json')).to.equal('application/json');
+            expect(ctx.request.isType('text/plain')).to.equal(false);
+            expect(ctx.request.isType('application/json')).to.equal(true);
+            if (ctx.request.isJsonObject<MossBody>()) {
+                // TODO: Why does this compile ok, but fail in VSCode hilighting?
+                const body: MossBody = ctx.request.body;
+                // expect(body.vine).to.equal(undefined); // This should fail to compile.
+                expect(body.moss).to.equal('hanging');
+            } else {
+                expect.fail('should have passed isJsonObject');
+            }
+            ctx.response.status = HttpStatus.OK;
+        });
         const results = await mockCallFunc(func, {
             req: {
                 headers: {
@@ -208,4 +210,73 @@ describe('Tricycle', () => {
         });
         expect(results.response.status).to.equal(200);
     });
+    it('should 404 Not Found if no body and status set', async () => {
+        const tricycle = new Tricycle()
+        const func = tricycle.endpoint((ctx) => {
+            expect(ctx.status).to.equal(undefined);
+        });
+        const results = await mockCallFunc(func);
+        expect(results.response.headers?.['content-type']).to.equal('text/plain');
+        expect(results.response.status).to.equal(404);
+        expect(results.response.body).to.equal('Not Found');
+    });
+    it('should have 204 No Content status if body is null', async () => {
+        const tricycle = new Tricycle()
+        const func = tricycle.endpoint((ctx) => {
+            ctx.body = null;
+        });
+        const results = await mockCallFunc(func);
+        expect(results.response.status).to.equal(204);
+    });
+    it('should have support body of null with application/json content-type', async () => {
+        const tricycle = new Tricycle()
+        const func = tricycle.endpoint((ctx) => {
+            ctx.response.headers['content-type'] = 'application/json';
+            ctx.body = null;
+        });
+        const results = await mockCallFunc(func);
+        expect(results.response.status).to.equal(200);
+        expect(results.response.headers?.['content-type']).to.equal('application/json');
+        expect(results.response.body).to.equal(null);
+    });    
+    it('should default to text/plain if body is string and no content-type is set', async () => {
+        const tricycle = new Tricycle()
+        const func = tricycle.endpoint((ctx) => {
+            ctx.body = "Hello World";
+        });
+        const results = await mockCallFunc(func);
+        expect(results.response.status).to.equal(200);
+        expect(results.response.headers?.['content-type']).to.equal('text/plain');
+        expect(results.response.body).to.equal('Hello World');
+    });
+    it('should default to application/json if body is object and no content-type is set', async () => {
+        const tricycle = new Tricycle()
+        const func = tricycle.endpoint((ctx) => {
+            ctx.body = { msg: "Hello World" };
+        });
+        const results = await mockCallFunc(func);
+        expect(results.response.status).to.equal(200);
+        expect(results.response.headers?.['content-type']).to.equal('application/json');
+        expect(results.response.body).to.eql({ msg: 'Hello World' });
+    });
+    it('should default to application/json if body is array and no content-type is set', async () => {
+        const tricycle = new Tricycle()
+        const func = tricycle.endpoint((ctx) => {
+            ctx.body = [ "Hello World" ];
+        });
+        const results = await mockCallFunc(func);
+        expect(results.response.status).to.equal(200);
+        expect(results.response.headers?.['content-type']).to.equal('application/json');
+        expect(results.response.body).to.eql([ 'Hello World' ]);
+    });     
+    it('should default to application/json if body is boolean and no content-type is set', async () => {
+        const tricycle = new Tricycle()
+        const func = tricycle.endpoint((ctx) => {
+            ctx.body = true;
+        });
+        const results = await mockCallFunc(func);
+        expect(results.response.status).to.equal(200);
+        expect(results.response.headers?.['content-type']).to.equal('application/json');
+        expect(results.response.body).to.equal(true);
+    });      
 });
