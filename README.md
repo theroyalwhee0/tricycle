@@ -57,6 +57,8 @@ export const myEndpoint = app.endpoint((context) => {
 
 
 ## History
+- v0.0.13 - 2022-09-16
+    - Add additional common header names.
 - v0.0.12 - 2022-09-04
     - Default status and content-type for various body types.
     - Improve tests.
