@@ -97,22 +97,34 @@ export enum HeaderNames {
     // accept-encoding: gzip, deflate, br
     AcceptLanguage = 'accept-language',
     // accept-language: en-US,en;q=0.5
+    Authorization = 'authorization',
+    // authorization: Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==
     CacheControl = 'cache-control',
     // cache-control: max-age=0
-    ContentType = 'content-type',
-    // content-type: text/html
     Connection = 'connection',
     // connection: keep-alive
+    ContentEncoding = 'content-encoding',
+    // content-encoding: gzip
+    ContentSecurityPolicy = 'content-security-policy',
+    // content-security-policy: default-src 'none';img-src 'self';style-src 'self'
+    ContentType = 'content-type',
+    // content-type: text/html
     Date = 'date',
     // date = Tue, 12 Jul 2022 21:09:53 GMT
-    ForwardedFor = 'x-forwarded-for',
-    // x–forwarded-for: 203.0.113.195, 2001:db8:85a3:8d3:1319:8a2e:370:7348, 10.9.8.7
     ETag = 'etag',
     // etag: "ab3bb444774e6d8e079a0e7186ed2037"
+    ForwardedFor = 'x-forwarded-for',
+    // x–forwarded-for: 203.0.113.195, 2001:db8:85a3:8d3:1319:8a2e:370:7348, 10.9.8.7
     Host = 'host',
     // host: www.example.com
+    ReferrerPolicy = 'referrer-policy',
+    // referrer-policy: strict-origin-when-cross-origin
     Server = 'server',
     // serve = Apache 2
-    UserAgent = 'user-agent'
+    StrictTransportSecurity = 'strict-transport-security',
+    // strict-transport-security: max-age=31536000; includeSubdomains
+    UserAgent = 'user-agent',
     // user-agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:96.0) Gecko/20100101 Firefox/96.0
+    Vary = 'vary',
+    // vary: accept-encoding
 }
