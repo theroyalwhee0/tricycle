@@ -5,7 +5,7 @@ import { AzureFunction } from '@azure/functions';
 import { Tricycle } from '../src/tricycle';
 import { Headers } from '../src/headers';
 import { Context } from '../src/context';
-import { Middleware } from '../src/middleware';
+import { Middleware, Next } from '../src/middleware';
 import { mockCallFunc } from './mock/azurefunction';
 import { JsonObject } from '../src/utilities/json';
 import { HttpStatus } from '../src/status';
@@ -47,15 +47,17 @@ describe('Tricycle', () => {
             index: number
         }
         type TestContext = TestMiddlewareContext;
-        const middleware: Middleware<TestMiddlewareContext> = spy((context: TestMiddlewareContext) => {
+        const middleware: Middleware<TestMiddlewareContext> = spy((context: TestMiddlewareContext, next:Next) => {
             context.index = (context.index ?? 0) + 1;
+            return next();
         });
-        const endpoint: Middleware<TestContext> = spy((context: TestContext) => {
+        const endpoint: Middleware<TestContext> = spy((context: TestContext, next:Next) => {
             expect(context).to.be.an('object');
             context.body = <TestBody>{
                 ok: true,
                 index: context.index
             };
+            return next();
         });
         const middlewareSpy: SinonSpy = <SinonSpy>middleware;
         const endpointSpy: SinonSpy = <SinonSpy>endpoint;
