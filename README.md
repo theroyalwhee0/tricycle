@@ -31,8 +31,9 @@ export const app = new Tricycle()
 
 ```js {}[greetings.js]
 export default function greetings() {
-    return function greetingsMiddleware(context) {
+    return function greetingsMiddleware(context, next) {
         context.response.headers['x-greetings'] = 'hi';
+        return next();
     }
 }
 ```
@@ -59,6 +60,7 @@ export const myEndpoint = app.endpoint((context) => {
 ## History
 - v0.0.13 - 2022-09-16
     - Add additional common header names.
+    - Improve invoke middleware. 'next' is no longer optional in middleware.
 - v0.0.12 - 2022-09-04
     - Default status and content-type for various body types.
     - Improve tests.

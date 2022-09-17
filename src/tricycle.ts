@@ -14,6 +14,8 @@ import { Middleware, Next } from './middleware';
 import { ResponseBody } from './response';
 import { HttpMessage } from './httpmsg';
 import { MimeTypes } from './mimetypes';
+import { compose } from './compose';
+import { once } from './utilities/once';
 
 /**
  * Clone callback type.
@@ -29,6 +31,11 @@ export class Tricycle<TContext extends Context = Context> {
      * Middleware list.
      */
     readonly #middleware: Middleware<TContext>[] = [];
+
+    /**
+     * Composed middlware.
+     */
+    #composed: Middleware<TContext>|null = null;
 
     /**
      * Create a new Tricycle instance.
@@ -64,40 +71,15 @@ export class Tricycle<TContext extends Context = Context> {
         return instance;
     }
 
-    #nextFactory(): [Next, () => void] {
-        let resolveNext;
-        const nextPromise = new Promise<void>((resolve) => {
-            resolveNext = () => {
-                resolve();
-            }
-        });
-        const next: Next = (): Promise<void> => {
-            return nextPromise;
-        };
-        return [next, resolveNext];
-    }
-
-    async #invokeMiddleware(context: TContext, ...mw: Middleware<TContext>[]): Promise<void> {
-        type Resolver = () => void;
-        const resolvers: Resolver[] = [];
-        const waiters: Promise<void>[] = [];
-        for (const middleware of mw) {
-            // Call middleware in order.
-            const [next, resolveNext] = this.#nextFactory();
-            const middlewarePromise = middleware(context, next)
-            // Middleware may be sync and not return a promise.
-            if (middlewarePromise) {
-                resolvers.push(resolveNext);
-                waiters.push(middlewarePromise);
-            }
-        }
-        for (let idx = waiters.length - 1; idx >= 0; idx--) {
-            // Resolve each middleware in reverse order.
-            const resolveNext = resolvers[idx];
-            const middlewarePromise = waiters[idx];
-            resolveNext();
-            await middlewarePromise;
-        }
+    /**
+     * Invoke middleware in order.
+     * @param context The context for this request.
+     * @param mw List of middleware to invoke.
+     */
+    async #invokeMiddleware(context: TContext, ...mw: Middleware<TContext>[]): Promise<unknown> {
+        const composed = compose(mw);
+        const next = () => Promise.resolve();
+        return composed(context, next);
     }
 
     /**
@@ -114,10 +96,18 @@ export class Tricycle<TContext extends Context = Context> {
         ): AzureFunction {
         return async (azureContext: Readonly<AzureContext>, azureRequest: Readonly<AzureHttpRequest>) => {
             const context = Context.create<TContext>(this, azureContext, azureRequest);
+            const endpointMiddleware:Middleware<TContext> = async (context:TContext, next:Next) => {
+                // TODO: Build endpoint middleware once and pass endpoint into it so that middleware can be 
+                // composed a single time.
+                const optionalNext = once(next);
+                const restrictContext = <RestrictContext<TContext, TBody, TStatus, THeaders>>context;
+                await fn(restrictContext, optionalNext);
+                await optionalNext();
+            };
             await this.#invokeMiddleware(
                 context,
                 ...this.#middleware,
-                <Middleware<TContext>><unknown>fn
+                endpointMiddleware,
             );
             const headers: Headers = context.response.headers;
             let status: number | NoneType = context.response.status;
@@ -161,8 +151,11 @@ export class Tricycle<TContext extends Context = Context> {
             if(status === None) {
                 status = 200;
             }            
+            if(!contentType) {
+                contentType = 'plain/text';
+            }
             azureContext.res.status = status;
-            azureContext.res.headers[HeaderNames.ContentType] = contentType || 'plain/text';
+            azureContext.res.headers[HeaderNames.ContentType] = contentType;
         };
     }
 }
