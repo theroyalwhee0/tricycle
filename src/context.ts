@@ -19,7 +19,7 @@ export interface IContextAliases<TBody extends ResponseBody = ResponseBody> {
     url: string
     method: string
     body: TBody
-    status: number
+    status: number|undefined
 }
 
 export class Context<TBody extends ResponseBody = ResponseBody> implements IContext {
@@ -76,8 +76,8 @@ export class Context<TBody extends ResponseBody = ResponseBody> implements ICont
         }
     }
 
-    set body(value: TBody) {
-        this.response.body = value;
+    set body(value: TBody|undefined) {
+        this.response.body = value === undefined ? None : value;
     }
 
     get status(): number | undefined {
@@ -89,8 +89,8 @@ export class Context<TBody extends ResponseBody = ResponseBody> implements ICont
         }
     }
 
-    set status(value: number) {
-        this.response.status = value;
+    set status(value: number|undefined) {
+        this.response.status = value === undefined ? None : value;
     }
 }
 

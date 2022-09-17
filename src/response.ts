@@ -9,7 +9,7 @@ import { None, NoneType } from "./utilities/none"
 /**
  * The HTTP Response body types.
  */
-export type ResponseBody = JsonValue;
+export type ResponseBody = JsonValue|undefined;
 
 /**
  * The HTTP Response interface.

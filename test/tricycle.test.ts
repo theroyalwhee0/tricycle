@@ -190,10 +190,10 @@ describe('Tricycle', () => {
             expect(ctx.request.is('application/json')).to.equal('application/json');
             expect(ctx.request.isType('text/plain')).to.equal(false);
             expect(ctx.request.isType('application/json')).to.equal(true);
+            // const _body: MossBody = ctx.request.body; // This should fail to compile. May be undefined.
             if (ctx.request.isJsonObject<MossBody>()) {
-                // TODO: Why does this compile ok, but fail in VSCode hilighting?
                 const body: MossBody = ctx.request.body;
-                // expect(body.vine).to.equal(undefined); // This should fail to compile.
+                // expect(body.vine).to.equal(undefined); // This should fail to compile. Vine does not exist on MossBody.
                 expect(body.moss).to.equal('hanging');
             } else {
                 expect.fail('should have passed isJsonObject');

@@ -58,7 +58,9 @@ export type RequestBody = JsonValue;
 /**
  * The HTTP Request with a specialized body type.
  */
-export type RequestWithBody<T extends RequestBody> = RequiredProperty<Request<T>, 'body'>
+export type RequestWithBody<T extends RequestBody> = RequiredProperty<Request<T>, 'body'> & {
+    body: T
+};
 
 /**
  *  Create type with a specific property required.
@@ -238,6 +240,9 @@ export class Request<TBody extends RequestBody = JsonValue> implements IRequest 
      * Get the HTTP method for the request.
      */
     get method(): string {
+        if(this.#azureRequest.method === null) {
+            throw new Error(`Expected Azure Request 'method' to be a string`);
+        }
         return this.#azureRequest.method;
     }
 
@@ -245,6 +250,9 @@ export class Request<TBody extends RequestBody = JsonValue> implements IRequest 
      * Get the URL parameters.
      */
     get params(): RequestParams {
+        if(!this.#azureContext.req) {
+            throw new Error(`Expected Azure Context 'req' to be an object`);
+        }
         return this.#azureContext.req.params;
     }
 

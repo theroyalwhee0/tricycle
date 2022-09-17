@@ -95,6 +95,12 @@ export class Tricycle<TContext extends Context = Context> {
             fn: Middleware<RestrictContext<TContext, TBody, TStatus, THeaders>>
         ): AzureFunction {
         return async (azureContext: Readonly<AzureContext>, azureRequest: Readonly<AzureHttpRequest>) => {
+            if(!azureContext.req) {
+                throw new Error(`Expected Azure Context 'req' to be an object`);
+            }
+            if(!azureContext.res) {
+                throw new Error(`Expected Azure Context 'res' to be an object`);
+            }            
             const context = Context.create<TContext>(this, azureContext, azureRequest);
             const endpointMiddleware:Middleware<TContext> = async (context:TContext, next:Next) => {
                 // TODO: Build endpoint middleware once and pass endpoint into it so that middleware can be 
@@ -130,10 +136,11 @@ export class Tricycle<TContext extends Context = Context> {
             let contentType = headers[HeaderNames.ContentType];
             if (body !== None) {
                 // Default status/content type from body.
-                if (body === null) {
+                if (body === null || body === undefined) {
                     // If null and status is not set and content-type not set, set status to no-content.
                     if (!contentType && status === None) {
                         status = HttpStatus.NO_CONTENT;
+                        body = undefined;
                     }
                 } else if (isString(body)) {
                     // If string and content-type not set, set to application/json.

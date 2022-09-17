@@ -6,10 +6,9 @@ type UnsetType = typeof Unset;
 export function once<TArgs extends unknown[], TReturn, TThis>(fn: (this: TThis, ...arg: TArgs) => TReturn) {
     let value:TReturn|UnsetType = Unset;
     return function(this: TThis, ...args: TArgs):TReturn {
-        if(value !== Unset) {
-            return value;
-        } else {
-            value = fn.apply(this, args);
+        if(value === Unset) {
+            value = fn.apply(this, args) as TReturn;
         }
+        return value;
     };    
 }

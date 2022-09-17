@@ -58,6 +58,10 @@ export const myEndpoint = app.endpoint((context) => {
 
 
 ## History
+- v0.0.14 - 2022-09-17
+    - Turn on 'strictNullChecks' and adjust code to match.
+    - Add support for 'undefined' body.
+    - Improve body tests.
 - v0.0.13 - 2022-09-17
     - Add additional common header names.
     - Improve invoke middleware. 'next' is no longer optional in middleware.

@@ -3,6 +3,7 @@
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "alwaysStrict": true,
+    "strictNullChecks": true,
     "noImplicitAny": true,
     "removeComments": false,
     "incremental": true,
