@@ -58,7 +58,7 @@ export const myEndpoint = app.endpoint((context) => {
 
 
 ## History
-- v0.0.13 - 2022-09-16
+- v0.0.13 - 2022-09-17
     - Add additional common header names.
     - Improve invoke middleware. 'next' is no longer optional in middleware.
 - v0.0.12 - 2022-09-04
