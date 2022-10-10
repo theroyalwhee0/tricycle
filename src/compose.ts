@@ -1,9 +1,14 @@
 import { Context } from "./context"
 import { Middleware, Next } from "./middleware"
 
-// REF: https://github.com/koajs/compose
-
-export function compose<TContext extends Context>(mw:Middleware<TContext>[]):Middleware<TContext>{
+/**
+ * Compose middleware functions into a single middleware function.
+ * Dealing with kinds of middleware is not a concern here.
+ * REF: https://github.com/koajs/compose
+ * @param middleware The middlware to compose.
+ * @returns The resulting middleare function.
+ */
+export function compose<TContext extends Context>(middleware:Middleware<TContext>[]):Middleware<TContext> {
     async function composed(ctx: TContext, next: Next):Promise<unknown> {
         let lastIdx = -1;
         async function composeMiddleware(idx:number):Promise<unknown> {
@@ -11,16 +16,16 @@ export function compose<TContext extends Context>(mw:Middleware<TContext>[]):Mid
                 throw new Error(`next() called multiple times (${lastIdx})`);
             }
             lastIdx = idx;
-            let middleware:Middleware<TContext>;
-            if(idx < mw.length) {
-                middleware = mw[idx];
-            } else if(idx === mw.length) {
-                middleware = next;
+            let mw:Middleware<TContext>;
+            if(idx < middleware.length) {
+                mw = middleware[idx];
+            } else if(idx === middleware.length) {
+                mw = next;
             } else {
                 return;
             }
             const nextMiddleware:Next = composeMiddleware.bind(null, idx+1);
-            return middleware(ctx, nextMiddleware);
+            return mw(ctx, nextMiddleware);
         }
         return composeMiddleware(0);
     }

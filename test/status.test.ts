@@ -1,6 +1,7 @@
 import { describe, it } from 'mocha';
 import { expect } from 'chai';
-import { HttpStatus, isValidHttpStatus } from '../src/status';
+import { HttpStatus } from '../src/index';
+import { isValidHttpStatus } from '../src/http/status';
 
 describe("HttpStatus", () => {
     it('should be an object', () => {
@@ -23,7 +24,7 @@ describe("isValidHttpStatus", () => {
             expect(result).to.equal(true);
         });
     });
-    const invalidStatusCodes = [0, 99, 200.1, 600, null, undefined, "200"];
+    const invalidStatusCodes = [0, 99, 200.1, 600, null, undefined, "200", NaN];
     invalidStatusCodes.forEach((value) => {
         it(`should fail invalid status: ${value}`, () => {
             const result = isValidHttpStatus(value as number);

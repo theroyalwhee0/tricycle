@@ -7,11 +7,6 @@ export const HTTP_STATUS_MIN = 100;
 export const HTTP_STATUS_MAX = 599;
 
 /**
- * HTTP Statuses.
- */
-export * as HttpStatus from './httpstatus';
-
-/**
  * Is this a valid http status?
  * Note: Valid values do not have to be in the HttpStatus enum.
  * @param value {number} The http status to check.
