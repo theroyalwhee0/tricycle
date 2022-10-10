@@ -1,5 +1,6 @@
 import { Context as AzureContext } from "@azure/functions";
 import { Context } from "../context";
+import { OnlyTimer } from "../context/restrict";
 
 export type AzureTimerInfo = {
     schedule: {
@@ -15,6 +16,6 @@ export type AzureTimerInfo = {
 
 export type AzureTimerFunction = Awaited<(context: AzureContext, timerInfo: AzureTimerInfo) => void>;
 
-export type TimerFunction<TContext extends Context> = Awaited<(context: TContext) => void>;
+export type TimerFunction<TContext extends Context> = Awaited<(ctx: OnlyTimer<TContext>) => void>;
 
 export type TimerInfo = AzureTimerInfo;

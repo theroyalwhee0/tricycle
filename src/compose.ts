@@ -9,9 +9,9 @@ import { Middleware, Next } from "./middleware"
  * @returns The resulting middleare function.
  */
 export function compose<TContext extends Context>(middleware:Middleware<TContext>[]):Middleware<TContext> {
-    async function composed(ctx: TContext, next: Next):Promise<unknown> {
+    async function composed(ctx: TContext, next: Next):Promise<void> {
         let lastIdx = -1;
-        async function composeMiddleware(idx:number):Promise<unknown> {
+        async function composeMiddleware(idx:number):Promise<void> {
             if (lastIdx > idx) {
                 throw new Error(`next() called multiple times (${lastIdx})`);
             }

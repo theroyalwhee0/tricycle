@@ -1,4 +1,5 @@
 import { Context } from "../context";
+import { OnlyHttp } from "../context/restrict";
 import { Headers } from './headers';
 
 /**
@@ -37,3 +38,5 @@ export interface IHttpContext extends Context {
     response: IHttpResponse,
     request: IHttpRequest,    
 }
+
+export type HttpFunction<TContext extends Context> = Awaited<(ctx: OnlyHttp<TContext>) => void>;
