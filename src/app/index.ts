@@ -4,7 +4,8 @@ import { Context } from "../context";
 import { Middleware, TricycleFunction } from "../middleware";
 import { AzureTimerInfo, TimerFunction } from '../timer';
 import { TimerContext } from '../timer/context';
-import { buildHttpResponse, HttpFunction } from '../http';
+import { HttpFunction } from '../http';
+import { transformHttpResponse } from '../http/transform';
 import { HttpContext } from '../http/context';
 import { OnlyHttp } from '../context/restrict';
 
@@ -49,7 +50,7 @@ export class Tricycle<TContext extends Context=Context> {
         return async (azureContext: Readonly<AzureContext>) => {
             const context = new HttpContext<TContext>(this, azureContext) as TContext & OnlyHttp<HttpContext<TContext>>;
             await this.#invokeMiddleware(context, fn);
-            await buildHttpResponse(context);
+            await transformHttpResponse(context);
         };
     }
 
