@@ -1,33 +1,13 @@
 import { Context as AzureContext } from "@azure/functions";
-import { Tricycle } from "../tricycle";
+import { Tricycle } from "../app";
 import { BaseContext, ContextKind, Context } from "../context";
-
-export interface IHttpRequest {  
-    originalUrl: string
-    URL: URL; 
-    headers: Headers,
-};
-
-export interface IHttpResponse {
-};
+import { HttpRequest, IHttpRequest } from "./request";
+import { HttpResponse, IHttpResponse } from "./response";
 
 export interface IHttpContext {
     readonly req?:IHttpRequest
     readonly res?:IHttpResponse
 };
-
-export class HttpRequest<TContext extends Context=Context> implements IHttpRequest {
-    originalUrl: string;
-    URL: URL;
-    headers: Headers;    
-    constructor(tricycle: Tricycle<TContext>, azureContext: Readonly<AzureContext>) {
-    }
-}
-
-export class HttpResponse<TContext extends Context=Context> implements IHttpResponse {
-    constructor(tricycle: Tricycle<TContext>, azureContext: Readonly<AzureContext>) {
-    }
-}
 
 export class HttpContext<TContext extends Context=Context> extends BaseContext<TContext> implements IHttpContext {
     readonly kind: ContextKind;

@@ -1,8 +1,9 @@
 import {
-    BindingDefinition,
-    Context as AzureContext, ContextBindingData, ContextBindings, ExecutionContext, HttpRequest, HttpResponse, Logger, TraceContext,
+    Context as AzureContext, BindingDefinition, ContextBindingData,
+    ContextBindings, ExecutionContext, HttpRequest, HttpResponse,
+    Logger, TraceContext, Form, HttpMethod, HttpRequestHeaders, HttpRequestParams, HttpRequestQuery, HttpRequestUser, HttpResponseHeaders, Cookie, HttpResponseSimple,
 } from '@azure/functions';
-
+import { Mock } from '../mock';
 
 /**
  * Mock AzureContext Optins
@@ -12,10 +13,56 @@ export type MockAzureContextOptions = {
 };
 
 /**
+ * Mock Azure HTTP Response.
+ */
+export class MockAzureHttpResponse implements HttpResponseSimple {
+    [Mock]: true;
+    headers?: HttpResponseHeaders = {};
+    cookies?: Cookie[] = [];
+    statusCode?: number | string = 200;
+    enableContentNegotiation?: boolean = false;
+    body?: unknown;
+
+    constructor(options?: MockAzureContextOptions) {
+    }    
+}
+
+/**
+ * Default mock headers.
+ */
+const defaultHeaders = {
+    'X-Forwarded-For': '203.0.113.195, 2001:db8:85a3:8d3:1319:8a2e:370:7348, 10.9.8.7'
+};
+
+/**
+ * Mock Azure HTTP Request.
+ */
+export class MockAzureHttpRequest implements HttpRequest {
+    [Mock]: true    
+    method: HttpMethod | null = 'GET';
+    url: string = 'https://localhost:9090/registration?campaign=summerfest'
+    headers: HttpRequestHeaders = {}
+    query: HttpRequestQuery = {}
+    params: HttpRequestParams = {}
+    user: HttpRequestUser | null = null;
+    body?: unknown;
+    rawBody?: unknown;
+
+    constructor(options?: MockAzureContextOptions) {
+        this.headers = Object.assign(this.headers, defaultHeaders);
+    }
+
+    parseFormBody(): Form {
+        throw new Error('Method not implemented.');
+    }
+}
+
+/**
  * Mock AzureContext.
  */
 export class MockAzureContext implements AzureContext {
-    invocationId: string;
+    [Mock]: true
+    invocationId: string = '';
     executionContext: ExecutionContext;
     bindings: ContextBindings;
     bindingData: ContextBindingData;
@@ -34,6 +81,8 @@ export class MockAzureContext implements AzureContext {
                 invocationId: this.invocationId,
             };
         }
+        this.req = new MockAzureHttpRequest(options);
+        this.res = new MockAzureHttpResponse(options);
     }
 
     done(_err?: string | Error, _result?: unknown): void {

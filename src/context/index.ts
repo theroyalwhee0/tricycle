@@ -1,6 +1,6 @@
 import { Context as AzureContext } from "@azure/functions";
 import { IPlatform } from "../platform/platform";
-import { Tricycle } from "../tricycle";
+import { Tricycle } from "../app";
 
 /**
  * Base Tricycle context.

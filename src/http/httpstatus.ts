@@ -107,4 +107,3 @@ export const SERVICE_UNAVAILABLE = 503 as const;
 export type SERVICE_UNAVAILABLE = 503;
 export const GATEWAY_TIMEOUT = 504 as const;
 export type GATEWAY_TIMEOUT = 504;
-

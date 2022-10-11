@@ -1,6 +1,6 @@
 {
   "name": "@tricycle/tricycle",
-  "version": "0.0.14",
+  "version": "0.1.0",
   "description": "TricycleJS Azure Functions Framework",
   "author": "Adam Mill <hismajesty@theroyalwhee.com>",
   "licenses": [{
@@ -40,6 +40,6 @@
     "test": "mocha --require ts-node/register test/**/*.test.ts",
     "test-watch": "mocha --reporter dot --watch --watch-files test/**/*.test.ts --watch-files src/**/*.ts --require ts-node/register test/**/*.test.ts",
     "dryrun": "npm run rebuild && npm prune && npm audit && npm run lint && npm test && npm publish --dry-run",
-    "audit": "npm audit --omit dev --omit optional"
+    "audit": "npm audit --omit dev"
   }
 }

@@ -4,6 +4,11 @@ import { Context, ContextKind } from "../../src/context";
 import { mockAzureContext, MockAzureContextOptions } from "./azure";
 
 /**
+ * Mock symbol.
+ */
+export const Mock = Symbol('Mock');
+
+/**
  * Mock Next.
  */
 export const mockNext = ():Next => spy();

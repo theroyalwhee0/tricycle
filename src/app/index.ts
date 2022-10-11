@@ -1,18 +1,16 @@
 import { AzureFunction, Context as AzureContext } from '@azure/functions';
-import { compose } from './compose';
-import { Context } from "./context";
-import { Middleware, TricycleFunction } from "./middleware";
-import { AzureTimerInfo, TimerFunction } from './timer';
-import { TimerContext } from './timer/context';
-import { HttpFunction } from './http';
-import { HttpContext } from './http/context';
-//import { httpMiddleware } from './http/middleware';
-//import { timerMiddleware } from './timer/middleware';
+import { compose } from '../middleware/compose';
+import { Context } from "../context";
+import { Middleware, TricycleFunction } from "../middleware";
+import { AzureTimerInfo, TimerFunction } from '../timer';
+import { TimerContext } from '../timer/context';
+import { HttpFunction } from '../http';
+import { HttpContext } from '../http/context';
 
 /**
  * The main Tricycle application class.
  */
-export class Tricycle<TContext extends Context> {
+export class Tricycle<TContext extends Context=Context> {
     /**
      * Middleware list.
      */
@@ -51,6 +49,7 @@ export class Tricycle<TContext extends Context> {
             type TContextWithHttp = TContext & HttpContext<TContext>;
             const context:TContextWithHttp = new HttpContext<TContext>(this, azureContext) as TContextWithHttp;
             await this.#invokeMiddleware(context, fn);
+            // await buildHttpResponse(context);
         };
     }
 
@@ -67,20 +66,3 @@ export class Tricycle<TContext extends Context> {
         }
     }
 }
-
-// const app = new Tricycle()
-//     .use(httpMiddleware((ctx) => {
-//         console.log("HTTP only", !!ctx.req);
-//     }))
-//     .use(timerMiddleware((ctx) => {
-//         console.log("Timer only", !!ctx.timer);
-//     }));
-
-// const _ep = app.endpoint((ctx) => {
-//     console.log("@@ endpoint", ctx.res);
-// });
-
-// const _tm = app.timer((ctx) => {
-//     console.log("@@ timer");
-//     console.log("@@ endpoint", ctx.timer);
-// });

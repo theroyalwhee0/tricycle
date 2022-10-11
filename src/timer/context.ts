@@ -1,7 +1,7 @@
 import { Context as AzureContext } from "@azure/functions";
 import { AzureTimerInfo, TimerInfo } from ".";
 import { BaseContext, ContextKind, Context } from "../context";
-import { Tricycle } from "../tricycle";
+import { Tricycle } from "../app";
 
 
 export interface ITimerContext {
