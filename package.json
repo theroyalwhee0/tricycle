@@ -37,8 +37,8 @@
     "clean": "mkdir -p ./dist && [ ! -z \"$(find ./dist/ -maxdepth 1 -type f -print -quit)\" ] && rm -R ./dist/*; true",
     "watch": "npm run build && tsc --watch",
     "lint": "eslint .",
-    "test": "mocha --require ts-node/register test/**/*.test.ts",
-    "test-watch": "mocha --reporter dot --watch --watch-files test/**/*.ts,src/**/*.ts --require ts-node/register test/**/*.test.ts",
+    "test": "mocha --recursive --check-leaks --extension ts --require ts-node/register test/",
+    "test-watch": "mocha --reporter dot --recursive --check-leaks --extension ts --require ts-node/register --watch-files test/,src/ --watch test/",
     "dryrun": "npm run rebuild && npm prune && npm audit && npm run lint && npm test && npm publish --dry-run",
     "audit": "npm audit --omit dev"
   }
