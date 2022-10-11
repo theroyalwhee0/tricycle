@@ -1,6 +1,6 @@
 import { describe, it } from 'mocha';
 import { expect } from 'chai';
-import { HeaderNames, CaseInsensitiveHeaders } from '../src/http/headers';
+import { HeaderNames, CaseInsensitiveHeaders } from '../../src/http/headers';
 
 describe('CaseInsensitiveHeaders', () => {
     it('should be a class', () => {

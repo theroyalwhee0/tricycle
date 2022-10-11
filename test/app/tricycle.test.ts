@@ -2,7 +2,7 @@ import { describe, it } from 'mocha';
 import { expect } from 'chai';
 // import { spy, SinonSpy } from 'sinon';
 // import { AzureFunction } from '@azure/functions';
-import { Tricycle } from '../src/index';
+import { Tricycle } from '../../src/index';
 
 describe('Tricycle', () => {
     it('should be a class', () => {

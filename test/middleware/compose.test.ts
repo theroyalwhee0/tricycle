@@ -1,10 +1,10 @@
 import { describe, it } from 'mocha';
 import { expect } from 'chai';
 import { SinonSpy, spy } from 'sinon';
-import { compose } from '../src/compose';
-import { Context } from '../src/context';
-import { Next } from '../src/index';
-import { mockNext, mockPlatformContext } from './mock';
+import { compose } from '../../src/middleware/compose';
+import { Context } from '../../src/context';
+import { Next } from '../../src/index';
+import { mockNext, mockPlatformContext } from '../mock';
 
 describe("compose", () => {
     it('should be an function', () => {
