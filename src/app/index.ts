@@ -1,18 +1,18 @@
 import { AzureFunction, Context as AzureContext } from '@azure/functions';
-import { compose } from '../middleware/compose';
 import { Context } from '../context';
-import { Middleware, TricycleFunction } from '../middleware';
-import { AzureTimerInfo, TimerFunction } from '../timer';
-import { TimerContext } from '../timer/context';
-import { HttpFunction } from '../http';
-import { transformHttpResponse } from '../http/transform';
-import { HttpContext } from '../http/context';
 import { OnlyHttp } from '../context/restrict';
+import { HttpFunction } from '../http';
+import { HttpContext, IHttpContext } from '../http/context';
+import { transformHttpResponse } from '../http/transform';
+import { Middleware, TricycleFunction } from '../middleware';
+import { compose } from '../middleware/compose';
+import { AzureTimerInfo, TimerFunction } from '../timer';
+import { ITimerContext, TimerContext } from '../timer/context';
 
 /**
  * Main Tricycle Context.
  */
-export type TricycleContext = Context & HttpContext & TimerContext;
+export type TricycleContext = Context & IHttpContext & ITimerContext;
 
 /**
  * The main Tricycle application class.
