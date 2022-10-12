@@ -1,7 +1,7 @@
 /**
  * Tricycle.
  */
-export { Tricycle } from './app';
+export { Tricycle, TricycleContext } from './app';
 
 /**
  * HTTP Statuses.

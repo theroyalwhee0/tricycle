@@ -10,9 +10,14 @@ import { HttpContext } from '../http/context';
 import { OnlyHttp } from '../context/restrict';
 
 /**
+ * Main Tricycle Context.
+ */
+export type TricycleContext = Context & HttpContext & TimerContext;
+
+/**
  * The main Tricycle application class.
  */
-export class Tricycle<TContext extends Context=Context> {
+export class Tricycle<TContext extends Context=TricycleContext> {
     /**
      * Middleware list.
      */
