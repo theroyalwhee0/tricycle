@@ -1,4 +1,4 @@
-import { isString } from "@theroyalwhee0/istype";
+import { isString } from '@theroyalwhee0/istype';
 
 /**
  * HTTP Headers interface.
@@ -43,7 +43,7 @@ export class CaseInsensitiveHeaders implements Headers {
                     return mapping[lower];
                 } else {
                     mapping[lower] = prop;
-                    return prop
+                    return prop;
                 }
             } else {
                 return prop;
@@ -77,7 +77,7 @@ export class CaseInsensitiveHeaders implements Headers {
                     return true;
                 }
                 return false;
-            }
+            },
         });
     }
 

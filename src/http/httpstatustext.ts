@@ -4,16 +4,16 @@
  */
 export enum HttpStatusText {
     // Information
-    CONTINUE = "Continue",
-    SWITCHING_PROTOCOLS = "Switching Protocols",
-    PROCESSING = "Processing",
+    CONTINUE = 'Continue',
+    SWITCHING_PROTOCOLS = 'Switching Protocols',
+    PROCESSING = 'Processing',
 
     // Success
-    OK = "OK",
-    CREATED = "Created",
-    ACCEPTED = "Accepted",
+    OK = 'OK',
+    CREATED = 'Created',
+    ACCEPTED = 'Accepted',
     // NONAUTHORITATIVE_INFORMATION = "NONAUTHORITATIVE_INFORMATION",
-    NO_CONTENT = "No Content",
+    NO_CONTENT = 'No Content',
     // RESET_CONTENT = "RESET_CONTENT",
     // PARTIAL_CONTENT = "PARTIAL_CONTENT",
 
@@ -27,11 +27,11 @@ export enum HttpStatusText {
     // PERMANENT_REDIRECT = "PERMANENT_REDIRECT",
 
     // Client
-    BAD_REQUEST = "Bad Request",
+    BAD_REQUEST = 'Bad Request',
     // UNAUTHORIZED = "UNAUTHORIZED",
     // PAYMENT_REQUIRED = "PAYMENT_REQUIRED",
-    FORBIDDEN = "Forbidden",
-    NOT_FOUND = "Not Found",
+    FORBIDDEN = 'Forbidden',
+    NOT_FOUND = 'Not Found',
     // METHOD_NOT_ALLOWED = "METHOD_NOT_ALLOWED",
     // NOT_ACCEPTABLE = "NOT_ACCEPTABLE",
     // PROXY_AUTHENTICATION_REQUIRED = "PROXY_AUTHENTICATION_REQUIRED",
@@ -54,9 +54,9 @@ export enum HttpStatusText {
     // UNAVAILABLE_FOR_LEGAL_REASONS = "UNAVAILABLE_FOR_LEGAL_REASONS",
 
     // Server
-    SERVER_ERROR = "Server Error",
-    NOT_IMPLEMENTED = "Not Implemented",
-    BAD_GATEWAY = "Bad Gateway",
-    SERVICE_UNAVAILABLE = "Service Unavailable",
-    GATEWAY_TIMEOUT = "Gateway Timeout",
+    SERVER_ERROR = 'Server Error',
+    NOT_IMPLEMENTED = 'Not Implemented',
+    BAD_GATEWAY = 'Bad Gateway',
+    SERVICE_UNAVAILABLE = 'Service Unavailable',
+    GATEWAY_TIMEOUT = 'Gateway Timeout',
 }

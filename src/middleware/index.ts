@@ -1,4 +1,4 @@
-import { Context } from "../context";
+import { Context } from '../context';
 
 /**
  * Call next middleware in sequence.

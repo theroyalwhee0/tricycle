@@ -1,8 +1,7 @@
-import { Context as AzureContext, HttpRequest as AzureHttpRequest } from "@azure/functions";
-import { Tricycle } from "../app";
-import { Context } from "../context";
-import { None, NoneType } from "../utilities/none";
-import { Headers, CaseInsensitiveHeaders, HeaderNames } from "./headers";
+import { Context as AzureContext, HttpRequest as AzureHttpRequest } from '@azure/functions';
+import { Tricycle } from '../app';
+import { Context } from '../context';
+import { CaseInsensitiveHeaders, HeaderNames, Headers } from './headers';
 
 /**
  * Azure HTTP Request with additional members.
@@ -25,19 +24,19 @@ export interface IHttpRequest {
     search:string
     querystring: string
     query: Readonly<Record<string,string>>
-};
+}
 
 export class HttpRequest<TContext extends Context=Context> implements IHttpRequest {
-    readonly #azureContext: Readonly<AzureContext>
-    readonly #req: Readonly<AzureHttpRequestEx>
+    readonly #azureContext: Readonly<AzureContext>;
+    readonly #req: Readonly<AzureHttpRequestEx>;
     readonly headers: Headers;    
     readonly originalUrl: string;
-    #URL?:URL
+    #URL?:URL;
     #ip?: string;
 
     constructor(_tricycle: Tricycle<TContext>, azureContext: Readonly<AzureContext>) {
         if(!azureContext.req) {
-            throw new Error(`Expected Azure Context 'req' to be an HttpRequest`);
+            throw new Error('Expected Azure Context \'req\' to be an HttpRequest');
         }
         this.#azureContext = azureContext;
         const req:AzureHttpRequestEx = this.#req = azureContext.req;
@@ -134,7 +133,7 @@ export class HttpRequest<TContext extends Context=Context> implements IHttpReque
      */    
     get method(): string {
         if(this.#req.method === null) {
-            throw new Error(`Expected Azure Request 'method' to be a string`);
+            throw new Error('Expected Azure Request \'method\' to be a string');
         }
         return this.#req.method;
     }

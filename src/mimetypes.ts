@@ -5,6 +5,8 @@
 export enum MimeTypes {
     // General.
     TextPlain = 'text/plain',
+    // Binary.
+    ApplicationOctet = 'application/octet-stream',
     // Data.
     ApplicationJson = 'application/json',
     // Web Pages.
@@ -12,9 +14,9 @@ export enum MimeTypes {
     TextCss = 'text/css',
     // Fonts.
     FontTtf = 'font/ttf',
-    FontOtf = "font/otf",
-    FontWoff = "font/woff",
-    FontWoff2 = "font/woff2",
+    FontOtf = 'font/otf',
+    FontWoff = 'font/woff',
+    FontWoff2 = 'font/woff2',
     // Scripts.
     TextJavascript = 'text/javascript',
     // Images.
@@ -53,4 +55,4 @@ export enum ExtensionTypes {
     '.png' = MimeTypes.ImagePng,
     '.svg' = MimeTypes.ImageSvg,
     '.ico' = MimeTypes.ImageIco,
-};
+}

@@ -1,9 +1,9 @@
-import { Context as AzureContext } from "@azure/functions";
-import { Tricycle } from "../app";
-import { Context } from "../context";
-import { JsonValue } from "../utilities/json";
-import { None, NoneType } from "../utilities/none";
-import { Headers, CaseInsensitiveHeaders } from "./headers";
+import { Context as AzureContext } from '@azure/functions';
+import { Tricycle } from '../app';
+import { Context } from '../context';
+import { JsonValue } from '../utilities/json';
+import { None, NoneType } from '../utilities/none';
+import { CaseInsensitiveHeaders, Headers } from './headers';
 
 /**
  * The HTTP Response body types.
@@ -17,15 +17,15 @@ export interface IHttpResponse<TBody extends ResponseBody=ResponseBody> {
     status: number | NoneType
     body: TBody | NoneType
     headers: Headers
-};
+}
 
 /**
  * HTTP Response.
  */
 export class HttpResponse<TContext extends Context=Context> implements IHttpResponse {
     #headers: Headers = new CaseInsensitiveHeaders();
-    status: number | NoneType = None
-    body: ResponseBody | NoneType = None
+    status: number | NoneType = None;
+    body: ResponseBody | NoneType = None;
 
     /**
      * Construct new HTTP Response.
@@ -33,6 +33,7 @@ export class HttpResponse<TContext extends Context=Context> implements IHttpResp
      * @param _azureContext Azure Context. Unused.
      */
     constructor(_tricycle: Tricycle<TContext>, _azureContext: Readonly<AzureContext>) {
+        // Empty.
     }
 
     /**

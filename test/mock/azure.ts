@@ -1,7 +1,8 @@
 import {
-    Context as AzureContext, BindingDefinition, ContextBindingData,
-    ContextBindings, ExecutionContext, HttpRequest, HttpResponse,
-    Logger, TraceContext, Form, HttpMethod, HttpRequestHeaders, HttpRequestParams, HttpRequestQuery, HttpRequestUser, HttpResponseHeaders, Cookie, HttpResponseSimple,
+    BindingDefinition, Context as AzureContext, ContextBindingData,
+    ContextBindings, Cookie, ExecutionContext, Form, HttpMethod, HttpRequest,
+    HttpRequestHeaders, HttpRequestParams, HttpRequestQuery, HttpRequestUser,
+    HttpResponse, HttpResponseHeaders, HttpResponseSimple, Logger, TraceContext,
 } from '@azure/functions';
 import { Mock } from '../mock';
 
@@ -9,7 +10,7 @@ import { Mock } from '../mock';
  * Mock AzureContext Optins
  */
 export type MockAzureContextOptions = {
-    invocationId?: string    
+    invocationId?: string
 };
 
 /**
@@ -23,32 +24,33 @@ export class MockAzureHttpResponse implements HttpResponseSimple {
     enableContentNegotiation?: boolean = false;
     body?: unknown;
 
-    constructor(options?: MockAzureContextOptions) {
-    }    
+    constructor(_options?: MockAzureContextOptions) {
+        // Empty.
+    }
 }
 
 /**
  * Default mock headers.
  */
 const defaultHeaders = {
-    'X-Forwarded-For': '203.0.113.195, 2001:db8:85a3:8d3:1319:8a2e:370:7348, 10.9.8.7'
+    'X-Forwarded-For': '203.0.113.195, 2001:db8:85a3:8d3:1319:8a2e:370:7348, 10.9.8.7',
 };
 
 /**
  * Mock Azure HTTP Request.
  */
 export class MockAzureHttpRequest implements HttpRequest {
-    [Mock]: true    
+    [Mock]: true;
     method: HttpMethod | null = 'GET';
-    url: string = 'https://localhost:9090/registration?campaign=summerfest'
-    headers: HttpRequestHeaders = {}
-    query: HttpRequestQuery = {}
-    params: HttpRequestParams = {}
+    url = 'https://localhost:9090/registration?campaign=summerfest';
+    headers: HttpRequestHeaders = {};
+    query: HttpRequestQuery = {};
+    params: HttpRequestParams = {};
     user: HttpRequestUser | null = null;
     body?: unknown;
     rawBody?: unknown;
 
-    constructor(options?: MockAzureContextOptions) {
+    constructor(_options?: MockAzureContextOptions) {
         this.headers = Object.assign(this.headers, defaultHeaders);
     }
 
@@ -61,13 +63,13 @@ export class MockAzureHttpRequest implements HttpRequest {
  * Mock AzureContext.
  */
 export class MockAzureContext implements AzureContext {
-    [Mock]: true
-    invocationId: string = '';
+    [Mock]: true;
+    invocationId = '';
     executionContext: ExecutionContext;
     bindings: ContextBindings;
     bindingData: ContextBindingData;
     traceContext: TraceContext;
-    bindingDefinitions: BindingDefinition[] = []
+    bindingDefinitions: BindingDefinition[] = [];
     log: Logger;
     req: HttpRequest;
     res: HttpResponse;
@@ -76,7 +78,7 @@ export class MockAzureContext implements AzureContext {
         if (options?.invocationId) {
             this.invocationId = options.invocationId;
         }
-        if(this.invocationId) {
+        if (this.invocationId) {
             this.bindingData = {
                 invocationId: this.invocationId,
             };
@@ -87,12 +89,12 @@ export class MockAzureContext implements AzureContext {
 
     done(_err?: string | Error, _result?: unknown): void {
         throw new Error('Method not implemented.');
-    }    
+    }
 }
 
 /**
  * Mock AzureContext.
  */
 export function mockAzureContext(options?: MockAzureContextOptions): AzureContext {
-    return new MockAzureContext();
+    return new MockAzureContext(options);
 }

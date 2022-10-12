@@ -1,6 +1,6 @@
-import { Context } from ".";
-import { IHttpContext } from "../http/context";
-import { ITimerContext } from "../timer/context";
+import { Context } from '.';
+import { IHttpContext } from '../http/context';
+import { ITimerContext } from '../timer/context';
 
 // Remove built-in context properties when they aren't used in specific contexts and 
 // flags optional properties as present when they will always be available in that context.

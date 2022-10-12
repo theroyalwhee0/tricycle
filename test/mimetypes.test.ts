@@ -2,7 +2,7 @@ import { describe, it } from 'mocha';
 import { expect } from 'chai';
 import { ExtensionTypes, MimeTypes } from '../src/mimetypes';
 
-describe("MimeTypes", () => {
+describe('MimeTypes', () => {
     it('should be an object', () => {
         expect(MimeTypes).to.be.an('object');
     });
@@ -13,7 +13,7 @@ describe("MimeTypes", () => {
     });
 });
 
-describe("ExtensionTypes", () => {
+describe('ExtensionTypes', () => {
     it('should be an object', () => {
         expect(ExtensionTypes).to.be.an('object');
     });

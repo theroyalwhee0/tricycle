@@ -3,10 +3,12 @@
   "version": "0.1.0",
   "description": "TricycleJS Azure Functions Framework",
   "author": "Adam Mill <hismajesty@theroyalwhee.com>",
-  "licenses": [{
-    "type": "Apache-2.0",
-    "url": "https://github.com/theroyalwhee0/tricycle/blob/main/LICENSE"
-  }],
+  "licenses": [
+    {
+      "type": "Apache-2.0",
+      "url": "https://github.com/theroyalwhee0/tricycle/blob/main/LICENSE"
+    }
+  ],
   "keywords": [
     "azure-functions"
   ],
@@ -22,7 +24,7 @@
     "@typescript-eslint/eslint-plugin": "5.30.5",
     "@typescript-eslint/parser": "5.30.5",
     "chai": "4.3.6",
-    "eslint": "8.19.0",
+    "eslint": "8.25.0",
     "mocha": "10.0.0",
     "sinon": "14.0.0",
     "ts-node": "10.8.2",
@@ -32,8 +34,8 @@
     "@theroyalwhee0/istype": "3.0.4"
   },
   "scripts": {
-    "build": "tsc",
-    "rebuild": "npm run clean && tsc --build --force",
+    "build": "npm run lint && tsc",
+    "rebuild": "npm run clean && eslint . --max-warnings 0 && tsc --build --force",
     "clean": "mkdir -p ./dist && [ ! -z \"$(find ./dist/ -maxdepth 1 -type f -print -quit)\" ] && rm -R ./dist/*; true",
     "watch": "npm run build && tsc --watch",
     "lint": "eslint .",

@@ -1,7 +1,7 @@
 import { AzureFunction, Context as AzureContext } from '@azure/functions';
 import { compose } from '../middleware/compose';
-import { Context } from "../context";
-import { Middleware, TricycleFunction } from "../middleware";
+import { Context } from '../context';
+import { Middleware, TricycleFunction } from '../middleware';
 import { AzureTimerInfo, TimerFunction } from '../timer';
 import { TimerContext } from '../timer/context';
 import { HttpFunction } from '../http';
@@ -38,7 +38,7 @@ export class Tricycle<TContext extends Context=Context> {
         const next = fn.bind(null, ctx);
         // NOTE: Context is incomplete at this point, middleware may add to it whenever it likes.
         // Custom required properties may not be populated until the matching middleware runs.
-        return composed(ctx, next)
+        return composed(ctx, next);
     }
 
     /**
@@ -64,6 +64,6 @@ export class Tricycle<TContext extends Context=Context> {
             type TContextWithTimer = TContext & TimerContext<TContext>;
             const context:TContextWithTimer = new TimerContext<TContext>(this, azureContext, timerInfo) as TContextWithTimer;
             await this.#invokeMiddleware(context, fn);
-        }
+        };
     }
 }

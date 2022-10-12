@@ -1,4 +1,4 @@
-import { isInteger } from "@theroyalwhee0/istype";
+import { isInteger } from '@theroyalwhee0/istype';
 
 /**
  * HTTP Status constants.

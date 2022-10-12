@@ -1,23 +1,23 @@
-import { isArray, isBoolean, isInteger, isObject, isString } from "@theroyalwhee0/istype";
-import { HttpStatus } from "..";
-import { OnlyHttp } from "../context/restrict";
-import { MimeTypes } from "../mimetypes";
-import { None, NoneType } from "../utilities/none";
-import { HttpContext } from "./context";
+import { isArray, isBoolean, isInteger, isObject, isString } from '@theroyalwhee0/istype';
+import { HttpStatus } from '..';
+import { OnlyHttp } from '../context/restrict';
+import { MimeTypes } from '../mimetypes';
+import { None, NoneType } from '../utilities/none';
+import { HttpContext } from './context';
 import { HeaderNames } from './headers';
-import { HttpStatusText } from "./httpstatustext";
-import { ResponseBody } from "./response";
-import { HTTP_STATUS_MAX, HTTP_STATUS_MIN } from "./status";
+import { HttpStatusText } from './httpstatustext';
+import { ResponseBody } from './response';
+import { HTTP_STATUS_MAX, HTTP_STATUS_MIN } from './status';
 
 export async function transformHttpResponse(context: OnlyHttp<HttpContext>) {
     const azureContext = context.platform.azureContext;
     const azureRequest = azureContext.req;
     const azureResponse = azureContext.res;
     if (!azureRequest) {
-        throw new Error(`Expected Azure Context Request to be an HttpRequest`);
+        throw new Error('Expected Azure Context Request to be an HttpRequest');
     }
     if (!azureResponse) {
-        throw new Error(`Expected Azure Context Response to be an object`);
+        throw new Error('Expected Azure Context Response to be an object');
     }
     // Get initial response values.
     const headers = context.response.headers;
@@ -29,8 +29,11 @@ export async function transformHttpResponse(context: OnlyHttp<HttpContext>) {
     Object.assign(azureRequest.headers, headers);
     if (body === None && status === None) {
         // 404 if no body and no status were set.
-        status = HttpStatus.NOT_FOUND
-        body = HttpStatusText.NOT_FOUND;
+        status = HttpStatus.NOT_FOUND;
+        if (!contentType) {
+            contentType = MimeTypes.TextPlain;
+            body = HttpStatusText.NOT_FOUND;
+        }
     } else if (body === null || body === undefined) {
         // If null and status is not set and content-type not set, set status to no-content.
         if (!contentType && status === None) {
@@ -56,9 +59,12 @@ export async function transformHttpResponse(context: OnlyHttp<HttpContext>) {
         // Fallback to 200 status if not set yet.
         status = 200;
     }
-    if (!contentType) {
-        // Fallback to plain text if not set yet.
-        contentType = MimeTypes.TextPlain;
+    if(status === 204) {
+        body = undefined;
+        contentType = '';
+    } else if (!contentType) {
+        // Fallback to octet stream if not set yet.
+        contentType = MimeTypes.ApplicationOctet;
     }
     // Validate status.
     if (
@@ -68,8 +74,10 @@ export async function transformHttpResponse(context: OnlyHttp<HttpContext>) {
     ) {
         throw new Error(`"${status}" is not a valid HTTP status.`);
     }
-    // Attach status and content-type header.
+    // Attach status, Content-Type, and body.
+    if(contentType) {
+        azureResponse.headers[HeaderNames.ContentType] = contentType;
+    }   
     azureResponse.status = status;
-    azureResponse.headers[HeaderNames.ContentType] = contentType;
     azureResponse.body = body;
 }

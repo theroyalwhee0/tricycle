@@ -1,6 +1,6 @@
-import { ContextKind, Context } from "../context";
-import { OnlyTimer } from "../context/restrict";
-import { Middleware, Next } from "../middleware";
+import { ContextKind, Context } from '../context';
+import { OnlyTimer } from '../context/restrict';
+import { Middleware, Next } from '../middleware';
 
 /**
  * Create Timer-only middeware wrapper.

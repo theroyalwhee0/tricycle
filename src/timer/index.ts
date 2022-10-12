@@ -1,6 +1,6 @@
-import { Context as AzureContext } from "@azure/functions";
-import { Context } from "../context";
-import { OnlyTimer } from "../context/restrict";
+import { Context as AzureContext } from '@azure/functions';
+import { Context } from '../context';
+import { OnlyTimer } from '../context/restrict';
 
 export type AzureTimerInfo = {
     schedule: {

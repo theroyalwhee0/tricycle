@@ -1,5 +1,5 @@
-import { Context } from "../context"
-import { Middleware, Next } from "."
+import { Context } from '../context';
+import { Middleware, Next } from '.';
 
 /**
  * Compose middleware functions into a single middleware function.

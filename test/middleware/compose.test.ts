@@ -6,7 +6,7 @@ import { Context } from '../../src/context';
 import { Next } from '../../src/index';
 import { mockNext, mockPlatformContext } from '../mock';
 
-describe("compose", () => {
+describe('compose', () => {
     it('should be an function', () => {
         expect(compose).to.be.a('function');
         expect(compose.length).to.equal(1);
@@ -54,7 +54,7 @@ describe("compose", () => {
         const results = await composed(ctx, next);
         expect(results).to.be.undefined;
         expect(nextSpy.callCount).to.equal(1);
-        for(let mw of middleware) {
+        for(const mw of middleware) {
             const mwSpy:SinonSpy = mw as SinonSpy;
             expect(mwSpy.callCount).to.equal(1);
         }
