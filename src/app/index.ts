@@ -1,7 +1,7 @@
 import { AzureFunction, Context as AzureContext } from '@azure/functions';
 import { Context } from '../context';
 import { OnlyHttp } from '../context/restrict';
-import { HttpFunction } from '../http';
+import { HttpFunction, IEndpoint } from '../http';
 import { HttpContext, IHttpContext } from '../http/context';
 import { transformHttpResponse } from '../http/transform';
 import { Middleware, TricycleFunction } from '../middleware';
@@ -51,9 +51,9 @@ export class Tricycle<TContext extends Context=TricycleContext> {
      * @param fn The endpoint function.
      * @returns An AzureFunction HTTP endpoint.
      */
-    endpoint(fn: HttpFunction<TContext>): AzureFunction {
+    endpoint<TEndpoint extends IEndpoint>(fn: HttpFunction<TContext, TEndpoint>): AzureFunction {
         return async (azureContext: Readonly<AzureContext>) => {
-            const context = new HttpContext<TContext>(this, azureContext) as TContext & OnlyHttp<HttpContext<TContext>>;
+            const context = new HttpContext<TContext>(this, azureContext) as TContext & OnlyHttp<HttpContext<TContext & TEndpoint>>;
             await this.#invokeMiddleware(context, fn);
             await transformHttpResponse(context);
         };

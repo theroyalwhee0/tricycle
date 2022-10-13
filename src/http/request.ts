@@ -24,6 +24,7 @@ export interface IHttpRequest {
     search:string
     querystring: string
     query: Readonly<Record<string,string>>
+    params: Readonly<Record<string,string>>
 }
 
 export class HttpRequest<TContext extends Context=Context> implements IHttpRequest {
@@ -31,8 +32,10 @@ export class HttpRequest<TContext extends Context=Context> implements IHttpReque
     readonly #req: Readonly<AzureHttpRequestEx>;
     readonly headers: Headers;    
     readonly originalUrl: string;
+    readonly params: Readonly<Record<string, string>>;
     #URL?:URL;
     #ip?: string;
+    
 
     constructor(_tricycle: Tricycle<TContext>, azureContext: Readonly<AzureContext>) {
         if(!azureContext.req) {
