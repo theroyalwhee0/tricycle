@@ -22,30 +22,34 @@ export type IEndpoint = {
     request?: unknown,
 }
 
-type PropertyObject<TKey extends string | number | symbol, TValue> = {
-    [Key in TKey]: TValue
-};
+// type PropertyObject<TKey extends string | number | symbol, TValue> = {
+//     [Key in TKey]: TValue
+// };
 
-export type OmitFromProperty<TValue, TKeys extends string | number | symbol, TProp extends keyof TValue> =
-    PropertyObject<TProp, Omit<TValue[TProp], TKeys>>
-;
+// type OmitFromProperty<TValue, TKeys extends string | number | symbol, TProp extends keyof TValue> =
+//     PropertyObject<TProp, Omit<TValue[TProp], TKeys>>
+// ;
 
 export type OverridePropertyFromEndpoint<
     TContext extends IHttpContext,
     TEndpoint extends IEndpoint,
     TKey extends keyof TContext & keyof TEndpoint,
-    _TStrictlyOptional extends keyof Exclude<TContext[TKey], undefined>,
+    TStrictlyOptional extends string | number | symbol,
 > = (
-    // Remove the original TKey property.
-    Omit<TContext, TKey> & (
-        OmitFromProperty<(
-                PropertyObject<TKey, Omit<Exclude<TContext[TKey], undefined>, keyof TEndpoint[TKey]>> &
-                PropertyObject<TKey, TEndpoint[TKey]>
-            ),
-            Exclude<EndpointRequestKeys, keyof TEndpoint[TKey]>,
-            TKey
-        >
-    )
+    // Exclude the original TKey property.
+    Omit<TContext, TKey> & ({
+        // Map TKey property.
+        [Key in TKey]: Omit<(
+            // Remove properties that were left optional and are in the strictly optional list.
+            (
+                // Include properties from TContext[TKey] that are not part of TEndpoint.
+                Omit<Exclude<TContext[TKey], undefined>, keyof TEndpoint[TKey]>
+            ) & (
+                // Include propreties from TEndpoint[TKey].
+                TEndpoint[TKey]
+            )
+        ), Exclude<TStrictlyOptional, keyof TEndpoint[TKey]>>
+    })
 );
 
 export type OverrideFromEndpoint<
@@ -90,7 +94,6 @@ export type EndpointRequest<TRequest extends IEndpointRequest|undefined> =
         >
     )
 ;
-
 
 // REF: https://stackoverflow.com/a/61625831
 // export type IsStrictlyAny<T> = (T extends never ? true : false) extends false ? false : true;
