@@ -25,8 +25,6 @@ export async function transformHttpResponse(context: OnlyHttp<HttpContext>) {
     let status: number | NoneType = context.response.status;
     let body: ResponseBody | NoneType = context.response.body;
 
-    // Attach headers. Modify azureRequest if headers need to be set after this.
-    Object.assign(azureRequest.headers, headers);
     if (body === None && status === None) {
         // 404 if no body and no status were set.
         status = HttpStatus.NOT_FOUND;
@@ -76,8 +74,10 @@ export async function transformHttpResponse(context: OnlyHttp<HttpContext>) {
     }
     // Attach status, Content-Type, and body.
     if(contentType) {
-        azureResponse.headers[HeaderNames.ContentType] = contentType;
-    }   
+        headers[HeaderNames.ContentType] = contentType;
+    }
+    // Attach headers. Modify azureRequest if headers need to be set after this.
+    Object.assign(azureRequest.headers, headers);
     azureResponse.status = status;
     azureResponse.body = body;
 }

@@ -20,10 +20,11 @@ export type IEndpoint = {
     request?: unknown,
 }
 
-export type OverrideFromEndpoint<
+export type OverridePropertyFromEndpoint<
     TContext extends IHttpContext,
     TEndpoint extends IEndpoint,
-    TKey extends keyof TContext & keyof TEndpoint='request'
+    TKey extends keyof TContext & keyof TEndpoint,
+    TStrictlyOptional extends keyof Exclude<TContext[TKey], undefined>,
 > = (
     // Override Context properties to match ones given in endpoint.
     Omit<TContext, TKey> & {
@@ -37,8 +38,14 @@ export type OverrideFromEndpoint<
                     // If prop is in TEndpoint[TKey] and TContext[TKey], include from TEndpoint[TKey]...
                     TEndpoint[TKey][Prop]
                 ) : Prop extends keyof Exclude<TContext[TKey], undefined> ? (
-                    // If prop is in TContext[TKey], include from TContext[TKey]...
-                    Exclude<TContext[TKey], undefined>[Prop]
+                    // If prop is in TContext[TKey]...
+                    Prop extends TStrictlyOptional ? (
+                        // If prop is in strictly optional...
+                        never
+                    ) : (
+                        // Else include from TContext[TKey]
+                        Exclude<TContext[TKey], undefined>[Prop]
+                    )
                 ) : (
                     // Else the propery should have been excluded earier in the chain, use never...
                     never
@@ -46,6 +53,13 @@ export type OverrideFromEndpoint<
             )
         }
     }
+);
+
+export type OverrideFromEndpoint<
+    TContext extends IHttpContext,
+    TEndpoint extends IEndpoint,
+> = (
+    OverridePropertyFromEndpoint<TContext, TEndpoint, 'request', 'query'|'params'>
 );
 
 export type HttpFunction<TContext extends HttpContext, TEndpoint extends IEndpoint> = Awaited<
@@ -68,14 +82,14 @@ export type PropertyOrMessage<TProp extends string, TRequest> =
     }
 ;
 
-export type Endpoint<TRequest extends IEndpointRequest=never, _TResponse extends IEndpointResponse=never> =
+export type Endpoint<TRequest extends IEndpointRequest|undefined=undefined, _TResponse extends IEndpointResponse=never> =
     // Make an endpoint type used to override Context properties.
     EndpointRequest<TRequest>
 ;
 
-export type EndpointRequest<TRequest extends IEndpointRequest=never> =
+export type EndpointRequest<TRequest extends IEndpointRequest|undefined> =
     // Make a type that only allow exact override of IEndpointRequest type.
-    (TRequest extends never
+    (TRequest extends undefined
         ? { }
         : PropertyOrMessage<
             'request',
@@ -83,3 +97,7 @@ export type EndpointRequest<TRequest extends IEndpointRequest=never> =
         >
     )
 ;
+
+
+// REF: https://stackoverflow.com/a/61625831
+// export type IsStrictlyAny<T> = (T extends never ? true : false) extends false ? false : true;
