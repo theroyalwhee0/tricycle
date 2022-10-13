@@ -10,6 +10,8 @@ export interface IEndpointRequest {
     query?: Record<string, string>,
 }
 
+export type EndpointRequestKeys = keyof Required<IEndpointRequest>;
+
 export interface IEndpointResponse {
     status?: number,
     body?: ResponseBody,
@@ -20,39 +22,30 @@ export type IEndpoint = {
     request?: unknown,
 }
 
+type PropertyObject<TKey extends string | number | symbol, TValue> = {
+    [Key in TKey]: TValue
+};
+
+export type OmitFromProperty<TValue, TKeys extends string | number | symbol, TProp extends keyof TValue> =
+    PropertyObject<TProp, Omit<TValue[TProp], TKeys>>
+;
+
 export type OverridePropertyFromEndpoint<
     TContext extends IHttpContext,
     TEndpoint extends IEndpoint,
     TKey extends keyof TContext & keyof TEndpoint,
-    TStrictlyOptional extends keyof Exclude<TContext[TKey], undefined>,
+    _TStrictlyOptional extends keyof Exclude<TContext[TKey], undefined>,
 > = (
-    // Override Context properties to match ones given in endpoint.
-    Omit<TContext, TKey> & {
-        // For each key in overrides...
-        [Key in TKey]: {
-            [
-                // For each key in TContext[TKey] or TEndpoint[TKey]...
-                Prop in keyof Exclude<TContext[TKey] & TEndpoint[TKey], undefined> 
-            ]: (
-                Prop extends Extract<keyof TEndpoint[TKey], keyof Exclude<TContext[TKey], undefined>> ? (
-                    // If prop is in TEndpoint[TKey] and TContext[TKey], include from TEndpoint[TKey]...
-                    TEndpoint[TKey][Prop]
-                ) : Prop extends keyof Exclude<TContext[TKey], undefined> ? (
-                    // If prop is in TContext[TKey]...
-                    Prop extends TStrictlyOptional ? (
-                        // If prop is in strictly optional...
-                        never
-                    ) : (
-                        // Else include from TContext[TKey]
-                        Exclude<TContext[TKey], undefined>[Prop]
-                    )
-                ) : (
-                    // Else the propery should have been excluded earier in the chain, use never...
-                    never
-                )
-            )
-        }
-    }
+    // Remove the original TKey property.
+    Omit<TContext, TKey> & (
+        OmitFromProperty<(
+                PropertyObject<TKey, Omit<Exclude<TContext[TKey], undefined>, keyof TEndpoint[TKey]>> &
+                PropertyObject<TKey, TEndpoint[TKey]>
+            ),
+            Exclude<EndpointRequestKeys, keyof TEndpoint[TKey]>,
+            TKey
+        >
+    )
 );
 
 export type OverrideFromEndpoint<
