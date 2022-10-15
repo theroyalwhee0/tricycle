@@ -24,15 +24,23 @@ export class MockAzureHttpResponse implements HttpResponseSimple {
     enableContentNegotiation?: boolean = false;
     body?: unknown;
 
+    get status():number {
+        throw new Error('Use .statusCode instead.');
+    }
+
+    set status(value:number) {
+        throw new Error('Use .statusCode instead.');
+    }    
+
     constructor(_options?: MockAzureContextOptions) {
         // Empty.
     }
 }
 
 /**
- * Default mock headers.
+ * Default mock request headers.
  */
-const defaultHeaders = {
+const defaultRequestHeaders = {
     'X-Forwarded-For': '203.0.113.195, 2001:db8:85a3:8d3:1319:8a2e:370:7348, 10.9.8.7',
 };
 
@@ -51,7 +59,7 @@ export class MockAzureHttpRequest implements HttpRequest {
     rawBody?: unknown;
 
     constructor(_options?: MockAzureContextOptions) {
-        this.headers = Object.assign(this.headers, defaultHeaders);
+        this.headers = Object.assign(this.headers, defaultRequestHeaders);
     }
 
     parseFormBody(): Form {

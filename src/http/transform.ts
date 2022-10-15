@@ -1,16 +1,14 @@
 import { isArray, isBoolean, isInteger, isObject, isString } from '@theroyalwhee0/istype';
-import { HttpStatus } from '..';
-import { OnlyHttp } from '../context/restrict';
+import { Context, HttpStatus } from '..';
 import { MimeTypes } from '../mimetypes';
-import { None, NoneType } from '../utilities/none';
-import { HttpContext } from './context';
+import { HttpContextRequired } from './context';
 import { HeaderNames } from './headers';
 import { HttpStatusText } from './httpstatustext';
 import { ResponseBody } from './response';
 import { HTTP_STATUS_MAX, HTTP_STATUS_MIN } from './status';
 
-export async function transformHttpResponse(context: OnlyHttp<HttpContext>) {
-    const azureContext = context.platform.azureContext;
+export async function transformHttpResponse<TContext extends HttpContextRequired<Context>>(ctx:TContext) {
+    const azureContext = ctx.platform.azureContext;
     const azureRequest = azureContext.req;
     const azureResponse = azureContext.res;
     if (!azureRequest) {
@@ -20,21 +18,20 @@ export async function transformHttpResponse(context: OnlyHttp<HttpContext>) {
         throw new Error('Expected Azure Context Response to be an object');
     }
     // Get initial response values.
-    const headers = context.response.headers;
+    const headers = ctx.response.headers;
     let contentType = headers[HeaderNames.ContentType];
-    let status: number | NoneType = context.response.status;
-    let body: ResponseBody | NoneType = context.response.body;
-
-    if (body === None && status === None) {
+    let status: number|undefined = ctx.response.status;
+    let body: ResponseBody = ctx.response.body;
+    if (body === undefined && status === undefined) {
         // 404 if no body and no status were set.
         status = HttpStatus.NOT_FOUND;
         if (!contentType) {
             contentType = MimeTypes.TextPlain;
             body = HttpStatusText.NOT_FOUND;
         }
-    } else if (body === null || body === undefined) {
+    } else if (body === null) {
         // If null and status is not set and content-type not set, set status to no-content.
-        if (!contentType && status === None) {
+        if (!contentType && status === undefined) {
             status = HttpStatus.NO_CONTENT;
             body = undefined;
         }
@@ -49,11 +46,7 @@ export async function transformHttpResponse(context: OnlyHttp<HttpContext>) {
             contentType = MimeTypes.ApplicationJson;
         }
     }
-    if(body === None) {
-        // Fallback to no body if not set yet.
-        body = undefined;
-    }
-    if (status === None) {
+    if (status === undefined) {
         // Fallback to 200 status if not set yet.
         status = 200;
     }
@@ -75,9 +68,12 @@ export async function transformHttpResponse(context: OnlyHttp<HttpContext>) {
     // Attach status, Content-Type, and body.
     if(contentType) {
         headers[HeaderNames.ContentType] = contentType;
+    } else if(HeaderNames.ContentType in headers) {
+        delete headers[HeaderNames.ContentType];
     }
     // Attach headers. Modify azureRequest if headers need to be set after this.
-    Object.assign(azureRequest.headers, headers);
-    azureResponse.status = status;
+    Object.assign(azureResponse.headers, headers);
+    // NOTE: use .statusCode, not .status here on the Azure Response.
+    azureResponse.statusCode = status; 
     azureResponse.body = body;
 }

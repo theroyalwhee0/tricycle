@@ -1,8 +1,7 @@
 import { AzureFunction, Context as AzureContext } from '@azure/functions';
 import { Context } from '../context';
-import { OnlyHttp } from '../context/restrict';
-import { HttpFunction, IEndpoint } from '../http';
-import { HttpContext, IHttpContext } from '../http/context';
+import { ContextEndpoint, HttpFunction, IEndpoint } from '../http';
+import { HttpContext, HttpContextRequired, IHttpContext } from '../http/context';
 import { transformHttpResponse } from '../http/transform';
 import { Middleware, TricycleFunction } from '../middleware';
 import { compose } from '../middleware/compose';
@@ -17,7 +16,7 @@ export type TricycleContext = Context & IHttpContext & ITimerContext;
 /**
  * The main Tricycle application class.
  */
-export class Tricycle<TContext extends Context=TricycleContext> {
+export class Tricycle<TContext extends Context = TricycleContext> {
     /**
      * Middleware list.
      */
@@ -51,11 +50,11 @@ export class Tricycle<TContext extends Context=TricycleContext> {
      * @param fn The endpoint function.
      * @returns An AzureFunction HTTP endpoint.
      */
-    endpoint<TEndpoint extends IEndpoint>(fn: HttpFunction<TContext, TEndpoint>): AzureFunction {
+    endpoint<TEndpoint extends IEndpoint = ContextEndpoint>(fn: HttpFunction<TContext, TEndpoint>): AzureFunction {
         return async (azureContext: Readonly<AzureContext>) => {
-            const context = new HttpContext<TContext>(this, azureContext) as TContext & OnlyHttp<HttpContext<TContext & TEndpoint>>;
-            await this.#invokeMiddleware(context, fn);
-            await transformHttpResponse(context);
+            const ctx = new HttpContext<TContext>(this, azureContext) as TContext;
+            await this.#invokeMiddleware(ctx, fn);
+            await transformHttpResponse(ctx as HttpContextRequired<TContext>);
         };
     }
 
@@ -64,11 +63,10 @@ export class Tricycle<TContext extends Context=TricycleContext> {
      * @param fn The timer function.
      * @returns An AzureFunction timer.
      */
-     timer(fn:TimerFunction<TContext>):AzureFunction {
-        return async (azureContext: Readonly<AzureContext>, timerInfo:AzureTimerInfo): Promise<void> => {
-            type TContextWithTimer = TContext & TimerContext<TContext>;
-            const context:TContextWithTimer = new TimerContext<TContext>(this, azureContext, timerInfo) as TContextWithTimer;
-            await this.#invokeMiddleware(context, fn);
+    timer(fn: TimerFunction<TContext>): AzureFunction {
+        return async (azureContext: Readonly<AzureContext>, timerInfo: AzureTimerInfo): Promise<void> => {
+            const ctx = new TimerContext<TContext>(this, azureContext, timerInfo) as TContext;
+            await this.#invokeMiddleware(ctx, fn);
         };
     }
 }

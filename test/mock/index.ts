@@ -24,12 +24,12 @@ export type MockContextOptions = {
  * Mock context with platform.
  */
 export function mockPlatformContext<TContext extends Context>(options?:MockContextOptions):TContext {
-    const context:TContext = {
+    const ctx:TContext = {
         app: null as unknown as Tricycle<TContext>, // TODO: Mock app.
         kind: ContextKind.Unknown,
         platform: {
             azureContext: mockAzureContext(options?.azureContext),
         },
     } as unknown as TContext;
-    return context;
+    return ctx;
 }

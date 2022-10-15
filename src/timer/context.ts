@@ -2,6 +2,7 @@ import { Context as AzureContext } from '@azure/functions';
 import { AzureTimerInfo, TimerInfo } from '.';
 import { Tricycle } from '../app';
 import { BaseContext, Context, ContextKind } from '../context';
+import { RequiredKeys } from '../utilities/types';
 
 
 export interface ITimerContext {
@@ -17,3 +18,5 @@ export class TimerContext<TContext extends Context=Context> extends BaseContext<
         this.timer = timerInfo;
     }
 }
+
+export type TimerContextRequired<TContext extends Context>  = TContext & RequiredKeys<TimerContext<TContext>, 'timer'>;

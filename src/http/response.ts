@@ -2,7 +2,6 @@ import { Context as AzureContext } from '@azure/functions';
 import { Tricycle } from '../app';
 import { Context } from '../context';
 import { JsonValue } from '../utilities/json';
-import { None, NoneType } from '../utilities/none';
 import { CaseInsensitiveHeaders, Headers } from './headers';
 
 /**
@@ -14,8 +13,8 @@ export type ResponseBody = JsonValue|undefined;
  * Response Interface.
  */
 export interface IHttpResponse<TBody extends ResponseBody=ResponseBody> {
-    status: number | NoneType
-    body: TBody | NoneType
+    status: number | undefined
+    body: TBody
     headers: Headers
 }
 
@@ -24,8 +23,8 @@ export interface IHttpResponse<TBody extends ResponseBody=ResponseBody> {
  */
 export class HttpResponse<TContext extends Context=Context> implements IHttpResponse {
     #headers: Headers = new CaseInsensitiveHeaders();
-    status: number | NoneType = None;
-    body: ResponseBody | NoneType = None;
+    status: number | undefined;
+    body: ResponseBody;
 
     /**
      * Construct new HTTP Response.

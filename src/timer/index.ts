@@ -1,6 +1,7 @@
 import { Context as AzureContext } from '@azure/functions';
-import { Context } from '../context';
-import { OnlyTimer } from '../context/restrict';
+import { RemovableContextProperties } from '../context';
+import { RequiredKeys } from '../utilities/types';
+import { TimerContext } from './context';
 
 export type AzureTimerInfo = {
     schedule: {
@@ -16,6 +17,17 @@ export type AzureTimerInfo = {
 
 export type AzureTimerFunction = Awaited<(context: AzureContext, timerInfo: AzureTimerInfo) => void>;
 
-export type TimerFunction<TContext extends Context> = Awaited<(ctx: OnlyTimer<TContext>) => void>;
-
 export type TimerInfo = AzureTimerInfo;
+
+export type TimerRequire = 'timer';
+export type TimerExclude = Exclude<RemovableContextProperties, TimerRequire>;
+
+ export type TimerFunction<TContext extends TimerContext> = Awaited<
+    (ctx: (
+        Omit<(
+            RequiredKeys<(
+                TContext
+            ), TimerRequire>
+        ), TimerExclude>
+    )) => void
+>;

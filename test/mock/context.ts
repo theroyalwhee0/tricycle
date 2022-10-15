@@ -16,6 +16,6 @@ export function mockHttpContext<TContext extends HttpContext=HttpContext>(
     tricycle:Tricycle, options?:MockContextOptions
 ):TContext {
     const azureContext = mockAzureContext(options?.azureContextOptions);
-    const context = new HttpContext(tricycle, azureContext) as TContext;
-    return context;
+    const ctx = new HttpContext(tricycle, azureContext) as TContext;
+    return ctx;
 }
