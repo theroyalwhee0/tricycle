@@ -4,6 +4,7 @@ import {
     HttpRequestHeaders, HttpRequestParams, HttpRequestQuery, HttpRequestUser,
     HttpResponse, HttpResponseHeaders, HttpResponseSimple, Logger, TraceContext,
 } from '@azure/functions';
+import { spy } from 'sinon';
 import { Mock } from '../mock';
 
 /**
@@ -12,6 +13,52 @@ import { Mock } from '../mock';
 export type MockAzureContextOptions = {
     invocationId?: string
 };
+
+/**
+ * Azure Logger function signature.
+ */
+type LoggerFn = (...args: unknown[]) => void;
+
+/**
+ * Symbol for referencing ALL logger spy.
+ */
+export const ALL = Symbol('ALL');
+
+/**
+ * Mock Azure Logger.
+ * @returns A mock Azure Logger.
+ */
+export function mockAzureLogger(): Logger {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const all: LoggerFn = spy((..._args: unknown[]): void => {
+        return;
+    });
+    const logger: LoggerFn = spy((...args: unknown[]) => {
+        return all(...args);
+    });
+    const error: LoggerFn = spy((...args: unknown[]) => {
+        return all(...args);
+    });
+    const warn: LoggerFn = spy((...args: unknown[]) => {
+        return all(...args);
+    });
+    const info: LoggerFn = spy((...args: unknown[]) => {
+        return all(...args);
+    });
+    const verbose: LoggerFn = spy((...args: unknown[]) => {
+        return all(...args);
+    });
+
+    // UNSAFE CODE - START
+    const azureLogger: Logger = logger as Logger;
+    Object.assign(azureLogger, {
+        error, warn, info, verbose,
+        [ALL]: all,
+    });
+    // UNSAFE CODE - END
+
+    return azureLogger;
+}
 
 /**
  * Mock Azure HTTP Response.
@@ -93,6 +140,7 @@ export class MockAzureContext implements AzureContext {
         }
         this.req = new MockAzureHttpRequest(options);
         this.res = new MockAzureHttpResponse(options);
+        this.log = mockAzureLogger();
     }
 
     done(_err?: string | Error, _result?: unknown): void {

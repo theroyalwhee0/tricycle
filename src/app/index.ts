@@ -11,7 +11,9 @@ import { ITimerContext, TimerContext } from '../timer/context';
 /**
  * Main Tricycle Context.
  */
-export type TricycleContext = Context & IHttpContext & ITimerContext;
+export type TricycleContext<TContext extends Context=Context> = (
+    TContext & IHttpContext & ITimerContext
+);
 
 /**
  * The main Tricycle application class.

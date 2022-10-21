@@ -1,5 +1,5 @@
 import { RemovableContextProperties } from '../context';
-import { SpecializeContext } from '../context/specialize';
+import { RestrictContext } from '../context/restrict';
 import { RequiredKeys } from '../utilities/types';
 import { HttpContext } from './context';
 import { ResponseBody } from './response';
@@ -47,7 +47,7 @@ export type HttpFunction<TContext extends HttpContext, TEndpoint extends IEndpoi
     (ctx: (
         Omit<(
             RequiredKeys<(
-                SpecializeContext<TContext, TEndpoint, HttpConcerns>
+                RestrictContext<TContext, TEndpoint, HttpConcerns>
             ), EndpointRequire>
         ), EndpointExclude>
     )) => void
