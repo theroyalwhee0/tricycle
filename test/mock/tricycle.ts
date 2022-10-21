@@ -1,8 +1,8 @@
-import { Tricycle } from "../../src/tricycle";
-import { Mock } from './mock';
+import { Tricycle } from '../../src/app';
+import { Mock } from '../mock';
 
 export class MockTricycle extends Tricycle {
-    [Mock]: true
+    [Mock]: true;
 }
 
 export function mockTricycle(): MockTricycle {
