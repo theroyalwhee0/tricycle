@@ -1,14 +1,15 @@
 # TricycleJS Azure Functions Framework
 
 ## Description
-TricycleJS is a library to simplify working with Azure Functions in Typescript. It is modeled after [KoaJS](https://koajs.com/) when possible.
+TricycleJS is a library to simplify working with Azure Functions in Typescript.
 
 TricycleJS is currently in Alpha and it's API is unstable. Please don't use it for anything important.
 
 Features
 - Middlware: Strongly typed middleware
-- Endpoint: Type Specialization for Response Body, Headers, and Status
-- API: API modeled after the KoaJS API
+- Endpoint: Type Specialization for Request & Response Body, Params, Headers, and Status
+- Timers: Timers can share middleware with Endpoints
+- API: The API modeled after the [KoaJS](https://koajs.com/) API
 - Azure Functions: Access to underlying Azure Functions primatives
 
 
@@ -18,35 +19,8 @@ Features
 
 ## Usage
 
-TricycleJS is used by creating an instance of Tricycle, extending it via middleware, and building endpoints from it.
-It is important to note that in TricycleJS every mutation of the Tricycle object clones and returns a new instance. 
+TricycleJS is used by creating an instance of Tricycle, extending it via middleware, and building endpoints and timers from it.
 
-
-```js {}[app.js]
-import Tricycle from '@tricycle/tricycle';
-import greetings from './greetings.js';
-export const app = new Tricycle()
-    .middleware(greetings);
-```
-
-```js {}[greetings.js]
-export default function greetings() {
-    return function greetingsMiddleware(context, next) {
-        context.response.headers['x-greetings'] = 'hi';
-        return next();
-    }
-}
-```
-
-```js {}[endpoint.js]
-import app from './app.js';
-
-export const myEndpoint = app.endpoint((context) => {
-    context.response.body = {
-        hello: 'world'
-    };
-});
-```
 
 ## First Party Middleware
 - [Log Winston](https://github.com/theroyalwhee0/tricycle-log-winston) - Adds a Winston Logger to the context using the Azure Function Logger as a transport
@@ -58,6 +32,11 @@ export const myEndpoint = app.endpoint((context) => {
 
 
 ## History
+- v0.1.0 - 2022-10-23
+    - Major refactor of entire library.
+    - Improved typing on endpoints.
+    - Add timer support.
+    - Improved tests.
 - v0.0.14 - 2022-09-17
     - Turn on 'strictNullChecks' and adjust code to match.
     - Add support for 'undefined' body.
